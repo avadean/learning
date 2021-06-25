@@ -121,10 +121,10 @@ class Question:
     def takeResponse(self, prompt):
         self.lastResponse = input(prompt).strip()
 
-        bestMatch = max([SequenceMatcher(None, self.lastResponse, ans).ratio()
-                         for ans in self.answers])
+        rating = max([SequenceMatcher(None, self.lastResponse, ans).ratio()
+                      for ans in self.answers])
 
-        return bestMatch
+        return rating
 
 
 cellQuestions = [Question('How many cells is a prokaryote?',
@@ -139,10 +139,7 @@ cellQuestions = [Question('How many cells is a prokaryote?',
                  Question('Do prokaryotes have a nucleus?',
                           answer='no'),
                  Question('Do eukaryotes have a nucleus?',
-                          answer='yes'),
-                 Question('Is this a nice picture?',
-                          answer='yes',
-                          image='cell.jpg')
+                          answer='yes')
                  ]
 
 questions = cellQuestions

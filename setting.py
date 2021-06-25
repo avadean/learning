@@ -1,3 +1,5 @@
+from data import Colors
+
 
 spellingLevel = {'exact': 1.0,
                  'strict': 0.9,
@@ -10,7 +12,55 @@ spellingLevel = {'exact': 1.0,
 
 class Settings:
     def __init__(self, spelling='moderate'):
-        self.spelling = spellingLevel.get(spelling, None)
+        assert type(spelling) is str
+        assert spelling.lower() in spellingLevel, 'Accepted spelling settings: {}'.format(', '.join(spellingLevel))
 
-        assert self.spelling is not None,\
-            'Accepted spelling settings: {}'.format(', '.join(spellingLevel))
+        self.spellingLevel = spelling.lower()
+        self.spelling = spellingLevel[spelling.lower()]
+
+    def update(self):
+        print('\nWould you like to update anything?')
+        print('  1: Spelling strictness')
+        print('  2: Cancel')
+        print('{}->{} '.format(Colors.blink, Colors.reset),
+              end='')
+
+        response = input().strip()
+
+        while response not in ['1', '2']:
+            print('Incorrect option supplied. Try again.')
+            response = input().strip()
+
+        if response == '1':
+            self.requestSpellingUpdate()
+
+            done = False
+
+            while not done:
+                response = input().strip()
+                done = self.setSpellingUpdate(response)
+
+        elif response == '2':
+            pass
+
+    def requestSpellingUpdate(self):
+        print('\nThe current spelling setting is {}{}{}'.format(Colors.underline,
+                                                                self.spellingLevel,
+                                                                Colors.reset))
+        print('Please choose a spelling setting: {}'.format(', '.join(spellingLevel)))
+        print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+
+    def setSpellingUpdate(self, newSpelling):
+        assert type(newSpelling) is str
+
+        if newSpelling.lower() in spellingLevel:
+            self.spellingLevel = newSpelling.lower()
+            self.spelling = spellingLevel[newSpelling.lower()]
+            print('Spelling setting updated to {}{}{}'.format(Colors.underline,
+                                                              self.spellingLevel,
+                                                              Colors.reset))
+            return True
+        else:
+            print('Incorrect option supplied. Try again.')
+            print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+            return False
