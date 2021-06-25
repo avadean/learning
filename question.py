@@ -1,3 +1,4 @@
+from data import Colors, intToStr
 from imghdr import what
 from os import path
 from PIL import Image
@@ -7,50 +8,6 @@ imagesDir = 'images/'
 
 assert path.isdir(imagesDir),\
     '{} directory for images not found.'.format(imagesDir)
-
-
-intToStr = {1: 'one',
-            2: 'two',
-            3: 'three',
-            4: 'four',
-            5: 'five',
-            6: 'six',
-            7: 'seven',
-            8: 'eight',
-            9: 'nine',
-            10: 'ten'
-            }
-
-
-class Colors:
-    default = '\033[39m'
-    black = '\033[30m'
-    red = '\033[31m'
-    green = '\033[32m'
-    yellow = '\033[33m'
-    blue = '\033[34m'
-    magenta = '\033[35m'
-    cyan = '\033[36m'
-    gray = '\033[37m'
-    orange = '\033[38;5;166m'
-
-    lightRed = '\033[91m'
-    lightGreen = '\033[92m'
-    lightYellow = '\033[93m'
-    lightBlue = '\033[94m'
-    lightMagenta = '\033[95m'
-    lightCyan = '\033[96m'
-
-    reset = '\033[0m'
-    bold = '\033[1m'
-    italicized = '\033[3m'
-    underline = '\033[4m'
-    blink = '\033[5m'
-
-    question = bold + green
-    options = underline + yellow
-    hint = italicized + red
-    answer = blue
 
 
 class Question:
@@ -87,7 +44,7 @@ class Question:
 
             self.hint = hint
 
-    def ask(self):
+    def ask(self, keepAsking=False):
         if self.image is not None:
             self.image.show()
 
@@ -125,10 +82,25 @@ class Question:
         while response not in self.answers:
             if response == '':
                 print(u'\u23F9  stopping.\n')
-                return
-            else:
+                return 0
+            elif keepAsking:
                 print(u'\u274C incorrect')
                 response = input('    ').strip()
+            else:
+                print(u'\u274C incorrect\n')
+                return 0
 
         # print(u'\u2713')
         print(u'\u2705 correct!\n')
+
+        return 1
+
+
+cellQuestions = [Question('How many cells is a prokaryote?',
+                          [1]),
+                 Question('How many cells is a eukaryote?',
+                          ['many'],
+                          ['one', 'many'])
+                 ]
+
+questions = cellQuestions
