@@ -1,17 +1,21 @@
 from data import Colors
 from question import questions
+from setting import Settings
 from random import choices
-from time import time
+
+import time
 
 
 if __name__ == '__main__':
+    settings = Settings()
+
     print('Hello! What would you like to do?')
-    print('  1: New profile')
-    print('  2: Load profile')
-    print('  3: Quick play (20 random questions)')
-    print('  4: Options')
+    print('  1: Learn')
+    print('  2: Profiles')
+    print('  3: Quick play (20 random timed questions!)')
+    print('  4: Settings')
     print('  5: Exit')
-    print('{}-> {}'.format(Colors.blink, Colors.reset),
+    print('{}->{} '.format(Colors.blink, Colors.reset),
           end='')
 
     response = input().strip()
@@ -31,12 +35,19 @@ if __name__ == '__main__':
 
         quickQuestions = choices(questions, k=numQuestions)
 
-        timeInitial = time()
+        print('')
+        time.sleep(0.2)
+        for sec in range(3, 0, -1):
+            print('{}...'.format(sec), end=' ', flush=True)
+            time.sleep(1)
+        print('Go!\n')
+
+        timeInitial = time.time()
 
         for question in quickQuestions:
-            numCorrect += question.ask()
+            numCorrect += question.ask(spelling=settings.spelling)
 
-        timeFinal = time()
+        timeFinal = time.time()
 
         perCent = 100.0 * float(numCorrect) / float(numQuestions)
 
