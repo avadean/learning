@@ -1,6 +1,7 @@
 from data import Colors
 from question import questions
 from random import choices
+from time import time
 
 
 if __name__ == '__main__':
@@ -25,14 +26,28 @@ if __name__ == '__main__':
         raise NotImplementedError
 
     elif response == '3':
-        quickQuestions = choices(questions, k=20)
         numCorrect = 0
+        numQuestions = 20
+
+        quickQuestions = choices(questions, k=numQuestions)
+
+        timeInitial = time()
 
         for question in quickQuestions:
             numCorrect += question.ask()
 
-        print('*** {} correct ({} %) ***'.format(numCorrect,
-                                                 5.0 * float(numCorrect)))
+        timeFinal = time()
+
+        perCent = 100.0 * float(numCorrect) / float(numQuestions)
+
+        totalTime = round(timeFinal - timeInitial, 1)
+
+        print('{}*** {} correct ({} %) in {} seconds! ***{}'.format(
+            Colors.blink,
+            numCorrect,
+            perCent,
+            totalTime,
+            Colors.reset))
 
     elif response == '4':
         raise NotImplementedError
