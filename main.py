@@ -1,4 +1,5 @@
 from data import Colors
+from learn import learn
 from question import questions
 from program import Program
 from setting import Settings
@@ -30,7 +31,7 @@ if __name__ == '__main__':
             response = input().strip().lower()
 
         if response in ['1', 'learn']:
-            raise NotImplementedError
+            learn()
 
         elif response in ['2', 'profiles']:
             program.queryProfiles()
