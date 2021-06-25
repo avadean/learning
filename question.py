@@ -78,14 +78,15 @@ class Question:
             if len(self.options) > 2:
                 prompt += ', '
                 for option in self.options[1:-1]:
-                    prompt += '{}{}{},'.format(Colors.options,
-                                               option,
-                                               Colors.reset)
+                    prompt += '{}{}{}, '.format(Colors.options,
+                                                option,
+                                                Colors.reset)
+                prompt = prompt[:-2] # Get rid of the last ', '
                 # prompt += ', '.join(self.options[1:-1])
 
             prompt += ' or {}{}{}?'.format(Colors.options,
-                                           self.options[-1],
-                                           Colors.reset)
+                                          self.options[-1],
+                                          Colors.reset)
 
         if self.hint is not None:
             prompt += ' {}({}){}'.format(Colors.hint,
@@ -139,7 +140,30 @@ cellQuestions = [Question('How many cells is a prokaryote?',
                  Question('Do prokaryotes have a nucleus?',
                           answer='no'),
                  Question('Do eukaryotes have a nucleus?',
-                          answer='yes')
+                          answer='yes'),
+                 Question('Where does the DNA reside inside prokaryotes?',
+                          answer='cell',
+                          options=['cell', 'nucleus']),
+                 Question('Where does the DNA reside inside eukaryotes?',
+                          answer='nucleus',
+                          options=['cell', 'nucleus']),
+                 Question('Is the membrane that surrounds the nucleus a single or double lipid bilayer?',
+                          answer='double',
+                          options=['single', 'double']),
+                 Question('Are the organelle structures large or small?',
+                          answer='large',
+                          options=['large', 'small']),
+                 Question('Are the vesicles and tubules large or small?',
+                          answer='small',
+                          options=['large', 'small']),
+                 Question('What are the contents of the eukaryotic cell referred to?',
+                          answer='cytoplasm',
+                          options=['cytoplasm', 'cytosol', 'organelle', 'vesicle', 'tubule', 'lumen']),
+                 Question('What is the aqueous of the cytoplasm called?',
+                          answer='cytosol',
+                          options=['cytosol', 'organelle', 'vesicle', 'tubule', 'lumen']),
+                 Question('What is the inside of an organelle, vesicle or tubule called?',
+                          answer='lumen')
                  ]
 
 questions = cellQuestions
