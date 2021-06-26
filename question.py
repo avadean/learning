@@ -30,17 +30,17 @@ class Question:
 
         assert answer is not None, 'A preferable answer must be given, even if multiple answers are acceptable'
 
-        self.answer = str(answer)
-        self.answers.append(str(answer))
+        self.answer = str(answer).lower()
+        self.answers.append(str(answer).lower())
         if intToStr.get(answer, None) is not None:
-            self.answers.append(intToStr[answer])
+            self.answers.append(intToStr[answer].lower())
 
         if answers is not None:
             assert type(answers) is list
             for ans in answers:
-                self.answers.append(str(ans))
+                self.answers.append(str(ans).lower())
                 if intToStr.get(ans, None) is not None:
-                    self.answers.append(intToStr[ans])
+                    self.answers.append(intToStr[ans].lower())
 
         if options is not None:
             assert type(options) is list
@@ -51,7 +51,7 @@ class Question:
 
         if image is not None:
             assert type(image) is str
-            assert what(imagesDir + image) in ['jpeg', 'png'],\
+            assert what(imagesDir + image) in ['jpg', 'jpeg', 'png'],\
                 '{} is not an image file'.format(imagesDir + image)
 
             self.image = Image.open(imagesDir + image)
@@ -59,7 +59,8 @@ class Question:
         if hint is not None:
             assert type(hint) is str
 
-            self.hint = hint
+            if len(hint) > 0:
+                self.hint = hint[0].upper() + hint[1:].lower()
 
     def ask(self, spelling=1.0, keepAsking=False):
         if self.image is not None:
@@ -120,7 +121,7 @@ class Question:
         return 1 if correct else 0
 
     def takeResponse(self, prompt):
-        self.lastResponse = input(prompt).strip()
+        self.lastResponse = input(prompt).strip().lower()
 
         rating = max([SequenceMatcher(None, self.lastResponse, ans).ratio()
                       for ans in self.answers])
@@ -375,6 +376,104 @@ cellQuestions = [Question('How many cells is a prokaryote?',
                  Question('From the trans Golgi network, what intermediate compartment are lysosomal enzymes delivered to?',
                           answer='late endosome',
                           options=['late endosome', 'nucleus', 'Golgi apparatus', 'mitochondria', 'endoplasmic reticulum']),
+
+                 Question('What is the general term for the process of internalisation of material from the cell surface known '
+                          'as?',
+                          answer='endocytosis'),
+
+                 Question('Are the vesicles that are formed from the internalisation of material from the cell surface known '
+                          'as early or late endosomes?',
+                          answer='early'),
+
+                 Question('What is the pH type of early endosomes?',
+                          answer='acidic',
+                          options=['acidic', 'alkaic', 'neutral']),
+
+                 Question('What are the endosomes that return material to the cell surface called?',
+                          answer='recycling',
+                          options=['recycling', 'early', 'late']),
+
+                 Question('The transferrin receptor releases iron that is bound to transferrin in the early endosome or '
+                          'recycling endosome. Once this process is completed, the receptor returns to the surface via an '
+                          'endosome. What type of endosome would this be?',
+                          answer='recycling',
+                          options=['recycling', 'early', 'late']),
+
+                 Question('The epidermal growth factor receptor transmits signals which trigger cell growth and cell '
+                          'division. These signals need to be regulated by the cell and thus these receptors need to be '
+                          'degraded in the lysosome. What type of endosome would transport these receptors to the lysosome?',
+                          answer='late',
+                          options=['recycing', 'early', 'late']),
+
+                 Question('What is the framework that gives a cell its structure and spatial organisation?',
+                          answer='cytoskeleton'),
+
+                 Question('Does the movement of vesicles and tubules between compartments occur at random?',
+                          answer='no'),
+
+                 Question('What are the proteins called that vesicles and tubules depend on for their movement?',
+                          answer='motor',
+                          answers=['motor proteins']),
+
+                 Question('The cytoskeleton is made up of microtubules, actin filaments and what other type of filament?',
+                          answer='intermediate',
+                          answers=['intermediate filament']),
+
+                 Question('The cytoskeleton is made up of microtubules, intermediate filaments and what other type of '
+                          'filament?',
+                          answer='actin',
+                          answers=['actin filament']),
+
+                 Question('The cytoskeleton is made up of actin filaments, intermediate filaments and what other type of '
+                          'tubule?',
+                          answer='micro',
+                          answers=['microtubule']),
+
+                 Question('What part of the cytoskeleton is best described by \'long hollow tubes\'?',
+                          answer='microtubules',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton is best described by \'double-stranded helical polymer\'?',
+                          answer='actin filaments',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton is best described by \'elongated and fibrous subunits\'?',
+                          answer='intermediate filaments',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton localises organelles within the cell?',
+                          answer='microtubules',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton provides tracks along which many vesicles and tubules move?',
+                          answer='microtubules',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton is pivotal in the physical separation of chromosomes during mitosis?',
+                          answer='microtubules',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton provides the shape of the cell\'s surface?',
+                          answer='actin filaments',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('What part of the cytoskeleton plays a major roles in the protrusion of material from the cell '
+                          'surface?',
+                          answer='actin filaments',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                 Question('Are microtubules dynamic structures?',
+                          answer='yes'),
+
+                 Question('Are actin filaments dynamic structures?',
+                          answer='yes'),
+
+                 Question('Are intermediate filaments dynamic structures?',
+                          answer='no'),
+
+                 Question('What part of the cytoskeleton provides mechanical strength to the cell?',
+                          answer='intermediate filaments',
+                          options=['microtubules', 'actin filaments', 'intermediate filaments'])
                  ]
 
 questions = cellQuestions
