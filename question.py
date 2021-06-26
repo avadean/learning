@@ -131,39 +131,250 @@ class Question:
 cellQuestions = [Question('How many cells is a prokaryote?',
                           answer=1,
                           options=['one', 'many']),
+
                  Question('How many cells is a eukaryote?',
                           answer='many',
                           options=['one', 'many']),
-                 Question('The major component of the cell membrane is a lipid bilayer. What phospholipids is this lipid bilayer mainly made up of?',
+
+                 Question('The major component of the cell membrane is a lipid bilayer. What phospholipids is this lipid '
+                          'bilayer mainly made up of?',
                           answer='amphipathic',
                           options=['hydrophilic', 'hydrophobic', 'amphipathic']),
+
                  Question('Do prokaryotes have a nucleus?',
                           answer='no'),
+
                  Question('Do eukaryotes have a nucleus?',
                           answer='yes'),
+
                  Question('Where does the DNA reside inside prokaryotes?',
                           answer='cell',
                           options=['cell', 'nucleus']),
+
                  Question('Where does the DNA reside inside eukaryotes?',
                           answer='nucleus',
                           options=['cell', 'nucleus']),
+
                  Question('Is the membrane that surrounds the nucleus a single or double lipid bilayer?',
                           answer='double',
                           options=['single', 'double']),
+
+                 Question('Is the membrane that surrounds the cell a single or double lipid bilayer?',
+                          answer='single',
+                          options=['single', 'double']),
+
                  Question('Are the organelle structures large or small?',
                           answer='large',
                           options=['large', 'small']),
+
                  Question('Are the vesicles and tubules large or small?',
                           answer='small',
                           options=['large', 'small']),
+
                  Question('What are the contents of the eukaryotic cell referred to?',
                           answer='cytoplasm',
                           options=['cytoplasm', 'cytosol', 'organelle', 'vesicle', 'tubule', 'lumen']),
-                 Question('What is the aqueous of the cytoplasm called?',
+
+                 Question('What is the aqueous part of the cytoplasm called?',
                           answer='cytosol',
                           options=['cytosol', 'organelle', 'vesicle', 'tubule', 'lumen']),
+
                  Question('What is the inside of an organelle, vesicle or tubule called?',
-                          answer='lumen')
+                          answer='lumen'),
+
+                 Question('What is the process of DNA turning into mRNA called?',
+                          answer='transcription',
+                          options=['transcription', 'translation']),
+
+                 Question('What is the process of mRNA turning into protein called?',
+                          answer='translation',
+                          options=['transcription', 'translation']),
+
+                 Question('What turns DNA into mRNA?',
+                          answer='polymerase',
+                          options=['polymerase', 'ribosomes']),
+
+                 Question('What turns mRNA into protein?',
+                          answer='ribosomes',
+                          options=['polymerase', 'ribosomes']),
+
+                 Question('In prokaryotes, does transcription and translation occur in the same space?',
+                          answer='yes'),
+
+                 Question('In eukaryotes, does transcription and translation occur in the same space?',
+                          answer='no'),
+
+                 Question('Is the inside of a cell a highly crowded environment?',
+                          answer='yes'),
+
+                 Question('The proteins that aid interaction with exterior environments of cells have been '
+                          'post-translationally modified by the addition of what residues?',
+                          answer='sugar'),
+
+                 Question('Which organelle harbours the majority of the DNA within a cell?',
+                          answer='nucleus',
+                          options=['nucleus', 'endoplasmic reticulum', 'Golgi apparatus', 'mitochondria', 'lysosomes',
+                                   'endosomes', 'peroxisomes', 'chloroplasts']),
+
+                 Question('Endosymbiosis is where one organism lives inside or alongside another organism?',
+                          answer='inside',
+                          options=['inside', 'alongside']),
+
+                 Question('Does gene transcription occur in the nucleus?',
+                          answer='yes'),
+
+                 Question('Does mRNA processing occur in the nucleus?',
+                          answer='yes'),
+
+                 Question('Does ribosome assembly occur in the nucleus?',
+                          answer='yes'),
+
+                 Question('Is the membrane that surrounds mitochondria a single or double lipid bilayer?',
+                          answer='double',
+                          options=['single', 'double']),
+
+                 Question('What is the energy source for reactions of the cell?',
+                          answer='atp',
+                          answers=['adenosine triphosphate']),
+
+                 Question('Do mitochondria contain DNA?',
+                          answer='yes'),
+
+                 Question('Does the inner or outer membrane of mitochondria contain mitochondrial ATP synthase?',
+                          answer='inner',
+                          options=['inner', 'outer']),
+
+                 Question('Peroxisomes contain high concentrations of what type of enzymes?',
+                          answer='oxidative',
+                          options=['oxidative', 'reductive']),
+
+                 Question('Is the job of peroxisomes to create or eliminate substances?',
+                          answer='eliminate'),
+
+                 Question('Is the membrane that surrounds endoplasmic reticulum a single or double lipid bilayer?',
+                          answer='single',
+                          options=['single', 'double']),
+
+                 Question('What does the endoplasmic reticulum store?',
+                          answer='calcium',
+                          answers=['ca']),
+
+                 Question('Regulated release of what, in response to extracellular signals, leads to change in activity of '
+                          'cell processes?',
+                          answer='calcium',
+                          answers=['ca']),
+
+                 Question('Is the endoplasmic reticulum responsible for lipid biosynthesis?',
+                          answer='yes'),
+
+                 Question('Is the endoplasmic reticulum responsible for the synthesis of proteins?',
+                          answer='yes'),
+
+                 Question('The space between the two lipid bilayers of the nucleus is known as the what?',
+                          answer='lumen'),
+
+                 Question('Membrane proteins are proteins that reside inside the membranes of organelles and allow for the '
+                          'transport in and out of the organelle. Roughly how many proteins are membrane proteins?',
+                          answer='third',
+                          options=['all', 'half', 'third', 'quarter', 'eighth', 'none']),
+
+                 Question('Where is DNA transcribed (turned into mRNA)?',
+                          answer='nucleus'),
+
+                 Question('Where is mRNA translated (turned into protein)?',
+                          answer='cytosol'),
+
+                 Question('Where do newly created proteins (from mRNA) attach to?',
+                          answer='endoplasmic reticulum',
+                          answers=['er']),
+
+                 Question('Unless it is destined to be a membrane protein, where does a newly created protein end up after it '
+                          'passes through the protein-lined channel in the endoplasmic reticulum membrane?',
+                          answer='lumen',
+                          options=['lumen', 'cytosol', 'cytoplasm', 'nucleus', 'Golgi apparatus']),
+
+                 Question('After a protein is newly created, where does it end up first on its pathway out of the eukaryotic '
+                          'cell?',
+                          answer='endoplasmic reticulum',
+                          answers=['er'],
+                          options=['endoplasmic reticulum', 'Golgi apparatus', 'cytosol', 'nucleus']),
+
+                 Question('In the secretory pathway, what comes first? The endoplasmic reticulum or the Golgi apparatus?',
+                          answer='endoplasmic reticulum',
+                          answers=['er']),
+
+                 Question('What transports proteins from the endoplasmic reticulum to the Golgi apparatus?',
+                          answer='vesicles'),
+
+                 Question('What face of the Golgi apparatus do vesicles deliver proteins to?',
+                          answer='cis',
+                          options=['cis', 'trans', 'medial']),
+
+                 Question('Where are newly created proteins folded?',
+                          answer='endoplasmic reticulum',
+                          answers=['er'],
+                          options=['endoplasmic reticulum', 'Golgi apparatus']),
+
+                 Question('What directions can protein traffic move in the Golgi apparatus?',
+                          answer='both',
+                          options=['forward', 'backward', 'both']),
+
+                 Question('What is the forward movement of protein traffic in the Golgi apparatus called?',
+                          answer='anterograde',
+                          options=['anterograde', 'retrograde']),
+
+                 Question('What is the backward movement of protein traffic in the Golgi apparatus called?',
+                          answer='retrograde',
+                          options=['anterograde', 'retrograde']),
+
+                 Question('Do sugar residues get added to proteins in the endoplasmic reticulum?',
+                          answer='no'),
+
+                 Question('Do sugar residues get added to proteins in the Golgi apparatus?',
+                          answer='yes'),
+
+                 Question('Do sugar residues get added to proteins in the nucleus?',
+                          answer='no'),
+
+                 Question('Is the Golgi apparatus responsible for transporting the newly created proteins to the cell '
+                          'membrane and/or other cell organelles?',
+                          answer='yes'),
+
+                 Question('Is the endoplasmic reticulum responsible for transporting the newly created proteins to the cell '
+                          'membrane and/or other cell organelles?',
+                          answer='no'),
+
+                 Question('What is the main function of lysosomes?',
+                          answer='recycling',
+                          options=['recycling', 'protein creation', 'mRNA creation', 'ATP production']),
+
+                 Question('From where can a transcription factor move from to the nucleus to reduce the level of mRNA '
+                          'processing and in turn reduce the activity of the cell if it is being starved?',
+                          answer='lysosome'),
+
+                 Question('Where are macromolecules delivered to to be broken down into their building blocks (e.g proteins '
+                          'to amino acids and polysaccharides to monosaccharides)?',
+                          answer='lysosome'),
+
+                 Question('The enzymes that hydrolyse macromolecules in the lysosome are acid hydrolases or alkali '
+                          'hydrolases?',
+                          answer='acid'),
+
+                 Question('What is the pH type of the lumen of the lysosome?',
+                          answer='acidic',
+                          options=['acidic', 'alkaic', 'neutral']),
+
+                 Question('What is the pH type of the Golgi and trans-Golgi network?',
+                          answer='acidic',
+                          options=['acidic', 'alkaic', 'neutral']),
+
+                 Question('What is the pH type of the cytosol?',
+                          answer='alkaic',
+                          options=['acidic', 'alkaic', 'neutral']),
+
+                 Question('From the trans Golgi network, what intermediate compartment are lysosomal enzymes delivered to?',
+                          answer='late endosome',
+                          options=['late endosome', 'nucleus', 'Golgi apparatus', 'mitochondria', 'endoplasmic reticulum']),
                  ]
 
 questions = cellQuestions
