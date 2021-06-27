@@ -1,4 +1,4 @@
-from data import Colors
+from data import PrintColors
 from random import sample
 
 import time
@@ -6,6 +6,8 @@ import time
 def quickPlay(questions, settings):
     numCorrect = 0
     numQuestions = 20
+
+    wrong = []
 
     quickQuestions = sample(questions, k=numQuestions)
 
@@ -17,8 +19,11 @@ def quickPlay(questions, settings):
 
     timeInitial = time.time()
 
-    for question in quickQuestions:
-        numCorrect += question.ask(spelling=settings.spelling)
+    for ques in quickQuestions:
+        correct = ques.ask(spelling=settings.spelling)
+        if correct == 0 :
+            wrong.append(ques)
+        numCorrect += correct
 
     timeFinal = time.time()
 
@@ -27,8 +32,12 @@ def quickPlay(questions, settings):
     totalTime = round(timeFinal - timeInitial, 1)
 
     print('{}*** {} correct ({} %) in {} seconds! ***{}'.format(
-        Colors.blink,
+        PrintColors.blink,
         numCorrect,
         perCent,
         totalTime,
-        Colors.reset))
+        PrintColors.reset))
+
+    print('\nAnswers to incorrect questions:')
+    for ques in wrong:
+        ques.printQuestion(withAnswer=True)

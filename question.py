@@ -1,4 +1,4 @@
-from data import Colors, intToStr
+from data import PrintColors, intToStr
 from difflib import SequenceMatcher
 from imghdr import what
 from os import path
@@ -23,6 +23,7 @@ class Question:
         self.hint = None
 
         self.lastResponse = None
+        self.category = None
 
         assert question is not None, 'A question must be supplied'
         assert type(question) is str
@@ -62,42 +63,20 @@ class Question:
             if len(hint) > 0:
                 self.hint = hint[0].upper() + hint[1:].lower()
 
+    def updateCategory(self, category=None):
+        acceptedCategories = ['biology', 'cells']
+        assert category in acceptedCategories, 'Question category must be in {}'.format(', '.join(acceptedCategories))
+
+        self.category = category
+
     def ask(self, spelling=1.0, keepAsking=False):
         if self.image is not None:
             self.image.show()
 
-        prompt = '{}{}{}'.format(Colors.question,
-                                 self.question,
-                                 Colors.reset)
-
-        if self.options is not None:
-            prompt += ' {}{}{}'.format(Colors.options,
-                                       self.options[0][0].upper() +
-                                       self.options[0][1:].lower(),
-                                       Colors.reset)
-
-            if len(self.options) > 2:
-                prompt += ', '
-                for option in self.options[1:-1]:
-                    prompt += '{}{}{}, '.format(Colors.options,
-                                                option,
-                                                Colors.reset)
-                prompt = prompt[:-2] # Get rid of the last ', '
-                # prompt += ', '.join(self.options[1:-1])
-
-            prompt += ' or {}{}{}?'.format(Colors.options,
-                                          self.options[-1],
-                                          Colors.reset)
-
-        if self.hint is not None:
-            prompt += ' {}({}){}'.format(Colors.hint,
-                                         self.hint,
-                                         Colors.reset)
-
-        prompt += '\n    {}'.format(Colors.reset)
+        self.printQuestion()
 
         correct = False
-        spellingMatch = self.takeResponse(prompt)
+        spellingMatch = self.takeResponse()
 
         while spellingMatch < spelling:
             if self.lastResponse == '':
@@ -120,13 +99,55 @@ class Question:
 
         return 1 if correct else 0
 
-    def takeResponse(self, prompt):
+    def takeResponse(self, prompt=''):
         self.lastResponse = input(prompt).strip().lower()
 
         rating = max([SequenceMatcher(None, self.lastResponse, ans).ratio()
                       for ans in self.answers])
 
         return rating
+
+    def printQuestion(self, withAnswer=False):
+        ques = self.getQuestion(withAnswer)
+        print(ques)
+
+    def getQuestion(self, withAnswer=False, withHint=True, withOptions=True):
+        ques = '{}{}{}'.format(PrintColors.question,
+                               self.question,
+                               PrintColors.reset)
+
+        if self.options is not None and withOptions and not withAnswer:
+            ques += ' {}{}{}'.format(PrintColors.options,
+                                     self.options[0][0].upper() +
+                                     self.options[0][1:].lower(),
+                                     PrintColors.reset)
+
+            if len(self.options) > 2:
+                ques += ', '
+                for option in self.options[1:-1]:
+                    ques += '{}{}{}, '.format(PrintColors.options,
+                                              option,
+                                              PrintColors.reset)
+                ques = ques[:-2]  # Get rid of the last ', '
+                # ques += ', '.join(self.options[1:-1])
+
+            ques += ' or {}{}{}?'.format(PrintColors.options,
+                                         self.options[-1],
+                                         PrintColors.reset)
+
+        if self.hint is not None and withHint and not withAnswer:
+            ques += ' {}({}){}'.format(PrintColors.hint,
+                                       self.hint,
+                                       PrintColors.reset)
+
+        if withAnswer:
+            ques += ' {}{}{}'.format(PrintColors.answer,
+                                     self.answer[0].upper() + self.answer[1:].lower(),
+                                     PrintColors.reset)
+        else:
+            ques += '\n    {}'.format(PrintColors.reset)
+
+        return ques
 
 
 cellQuestions = [Question('How many cells is a prokaryote?',
@@ -475,5 +496,32 @@ cellQuestions = [Question('How many cells is a prokaryote?',
                           answer='intermediate filaments',
                           options=['microtubules', 'actin filaments', 'intermediate filaments'])
                  ]
+
+biologyQuestions = [Question('There are four types of biological molecules that are the \'ingredients for life\'. '
+                             'Carbohydrates, lipids, proteins and what other?',
+                             answer='nucleic acids',
+                             answers=['nucleic']),
+
+                    Question('There are four types of biological molecules that are the \'ingredients for life\'. '
+                             'Carbohydrates, lipids, nucleic acids and what other?',
+                             answer='proteins'),
+
+                    Question('There are four types of biological molecules that are the \'ingredients for life\'. '
+                             'Carbohydrates, nucleic acids, proteins and what other?',
+                             answer='lipids'),
+
+                    Question('There are four types of biological molecules that are the \'ingredients for life\'. '
+                             'Nucleic acids, lipids, proteins and what other?',
+                             answer='carbohydrates'),
+
+                    Question('What polysaccharide is the main short-term energy storage in animals, fungi and bacteria?',
+                             answer='glycogen')
+                    ]
+
+for q in cellQuestions:
+    q.updateCategory('cells')
+
+for q in biologyQuestions:
+    q.updateCategory('biology')
 
 questions = cellQuestions

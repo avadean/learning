@@ -1,17 +1,17 @@
-from data import Colors
+from data import PrintColors
 
 
 def learn():
     print('\nWhat would you like to learn about?')
     print('  1: Cell biology')
-    print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+    print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
 
     response = input().strip().lower()
 
     while response not in ['1',
                            'cells']:
         print('Incorrect option supplied. Try again.')
-        print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
         response = input().strip().lower()
 
     if response in ['1', 'cells']:

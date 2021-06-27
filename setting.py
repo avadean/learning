@@ -1,4 +1,4 @@
-from data import Colors
+from data import PrintColors
 
 
 spellingLevel = {'exact': 1.0,
@@ -22,7 +22,7 @@ class Settings:
         print('\nWould you like to update anything?')
         print('  1: Spelling strictness')
         print('  2: Cancel')
-        print('{}->{} '.format(Colors.blink, Colors.reset),
+        print('{}->{} '.format(PrintColors.blink, PrintColors.reset),
               end='')
 
         response = input().strip()
@@ -44,11 +44,11 @@ class Settings:
             pass
 
     def requestSpellingUpdate(self):
-        print('\nThe current spelling setting is {}{}{}'.format(Colors.underline,
+        print('\nThe current spelling setting is {}{}{}'.format(PrintColors.underline,
                                                                 self.spellingLevel,
-                                                                Colors.reset))
+                                                                PrintColors.reset))
         print('Please choose a spelling setting: {}'.format(', '.join(spellingLevel)))
-        print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
 
     def setSpellingUpdate(self, newSpelling):
         assert type(newSpelling) is str
@@ -56,11 +56,11 @@ class Settings:
         if newSpelling.lower() in spellingLevel:
             self.spellingLevel = newSpelling.lower()
             self.spelling = spellingLevel[newSpelling.lower()]
-            print('Spelling setting updated to {}{}{}'.format(Colors.underline,
+            print('Spelling setting updated to {}{}{}'.format(PrintColors.underline,
                                                               self.spellingLevel,
-                                                              Colors.reset))
+                                                              PrintColors.reset))
             return True
         else:
             print('Incorrect option supplied. Try again.')
-            print('{}->{} '.format(Colors.blink, Colors.reset), end='')
+            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
             return False

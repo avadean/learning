@@ -1,4 +1,4 @@
-from data import Colors
+from data import PrintColors
 
 
 def loadProfiles():
@@ -23,9 +23,9 @@ def loadProfiles():
                     prof.default = False
 
         print('Warning: more than one profile set as default')
-        print('Setting {}{}{} to default profile'.format(Colors.underline,
+        print('Setting {}{}{} to default profile'.format(PrintColors.underline,
                                                          defaultProfile.name,
-                                                         Colors.reset))
+                                                         PrintColors.reset))
 
     return profiles
 
@@ -39,7 +39,7 @@ class Profile:
         assert type(questionsCorrect) is int
         assert type(default) is bool
 
-        self.name = '{}{}{}'.format(Colors.underline, name, Colors.reset)
+        self.name = '{}{}{}'.format(PrintColors.underline, name, PrintColors.reset)
         self.nameNormal = name
 
         self.questionsAttempted = questionsAttempted
@@ -48,9 +48,9 @@ class Profile:
         self.default = default
 
     def __str__(self):
-        string = '{}{}{}\n'.format(Colors.underline,
+        string = '{}{}{}\n'.format(PrintColors.underline,
                                    self.name,
-                                   Colors.reset)
+                                   PrintColors.reset)
 
         string += 'Questions attempted: {}'.format(self.questionsAttempted)
         string += 'Questions correct  : {}'.format(self.questionsCorrect)
