@@ -5,7 +5,7 @@ import time
 
 def quickPlay(questions, settings):
     numCorrect = 0
-    numQuestions = 1
+    numQuestions = 20
 
     wrong = []
 
