@@ -69,10 +69,7 @@ class Question:
 
         if categories is not None:
             assert type(categories) is list
-            assert all(category in questionCategories for category in categories), \
-                'Question categories accepted are {}'.format(', '.join(questionCategories))
-
-            self.categories = categories
+            self.addCategories(categories)
 
     def processAnswer(self, answer):
         if type(answer) is str:
@@ -82,11 +79,11 @@ class Question:
             assert strVersion is not None, 'Answer {} not recognised'.format(answer)
             self.answers.append(strVersion)
 
-    def addCategory(self, category=None):
-        acceptedCategories = ['biology', 'cells']
-        assert category in acceptedCategories, 'Question category must be in {}'.format(', '.join(acceptedCategories))
+    def addCategories(self, *args):
+        for category in args:
+            assert category in questionCategories,\
+                '{} not in acceptable question categories: {}'.format(category, ', '.join(questionCategories))
 
-        if category not in self.categories:
             self.categories.append(category)
 
     def ask(self, spelling=1.0, keepAsking=False):
@@ -126,7 +123,7 @@ class Question:
         self.lastResponse = input(prompt).strip().lower()
 
     def calcExactResponseWithRating(self):
-        # see init for explanation of what an exactResponse is
+        # see __init__ for explanation of what an exactResponse is
 
         ratings = [SequenceMatcher(None, self.lastResponse, ans).ratio() for ans in self.answers]
 
@@ -146,8 +143,7 @@ class Question:
             self.lastReponseRating = bestRating
 
     def printQuestion(self, withAnswer=False):
-        ques = self.getQuestion(withAnswer)
-        print(ques)
+        print(self.getQuestion(withAnswer), end='')
 
     def getQuestion(self, withHint=True, withOptions=True, withAnswer=False):
         ques = '{}{}{}'.format(PrintColors.question,
@@ -156,8 +152,7 @@ class Question:
 
         if self.options is not None and withOptions and not withAnswer:
             ques += ' {}{}{}'.format(PrintColors.options,
-                                     self.options[0][0].upper() +
-                                     self.options[0][1:].lower(),
+                                     self.options[0][0].upper() + self.options[0][1:].lower(),
                                      PrintColors.reset)
 
             if len(self.options) > 2:
@@ -190,8 +185,7 @@ class Question:
 
 biologyQuestions = [Question('There are four types of biological molecules that are the \'ingredients for life\'. '
                              'Carbohydrates, lipids, proteins and what other?',
-                             answer='nucleic acids',
-                             answers=['nucleic']),
+                             answers=['nucleic', 'nucleic acids']),
 
                     Question('There are four types of biological molecules that are the \'ingredients for life\'. '
                              'Carbohydrates, lipids, nucleic acids and what other?',
@@ -212,7 +206,25 @@ biologyQuestions = [Question('There are four types of biological molecules that 
                              answer='lipids'),
 
                     Question('Glycerol plus three fatty acids gives what?',
-                             answer='triglyceride')
+                             answer='triglyceride'),
+
+                    Question('What is the name of the ester composed of three fatty acids and glycerol?',
+                             answer='triglyceride'),
+
+                    Question('What are type of energy storage are triglycerides used for?',
+                             answers=['long', 'long term'],
+                             options=['long term', 'short term']),
+
+                    Question('A triglyceride is an ester composed of three fatty acids and glycerol. Replacing one of these '
+                             'fatty acids with a phosphate group gives what?',
+                             answer='phospholipid'),
+
+                    Question('What are steroids?',
+                             answer='lipids',
+                             options=['carbohydrates', 'lipids', 'nucleic acids', 'proteins']),
+
+                    Question('What type of molecule is cholesterol?',
+                             answers=['steroid', 'lipid'])
                     ]
 
 cellsQuestions = [Question('How many cells is a prokaryote?',
@@ -223,8 +235,8 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer='many',
                            options=['one', 'many']),
 
-                  Question('The major component of the cell membrane is a lipid bilayer. What phospholipids is this lipid '
-                           'bilayer mainly made up of?',
+                  Question('The major component of the cell membrane is a lipid bilayer. What type of phospholipids is this '
+                           'lipid bilayer mainly made up of?',
                            answer='amphipathic',
                            options=['hydrophilic', 'hydrophobic', 'amphipathic']),
 
@@ -321,8 +333,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            options=['single', 'double']),
 
                   Question('What is the energy source for reactions of the cell?',
-                           answer='atp',
-                           answers=['adenosine triphosphate']),
+                           answers=['atp', 'adenosine triphosphate']),
 
                   Question('Do mitochondria contain DNA?',
                            answer=True),
@@ -343,13 +354,11 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            options=['single', 'double']),
 
                   Question('What does the endoplasmic reticulum store?',
-                           answer='calcium',
-                           answers=['ca']),
+                           answers=['ca', 'calcium']),
 
                   Question('Regulated release of what, in response to extracellular signals, leads to change in activity of '
                            'cell processes?',
-                           answer='calcium',
-                           answers=['ca']),
+                           answers=['ca', 'calcium']),
 
                   Question('Is the endoplasmic reticulum responsible for lipid biosynthesis?',
                            answer=True),
@@ -372,8 +381,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer='cytosol'),
 
                   Question('Where do newly created proteins (from mRNA) attach to?',
-                           answer='endoplasmic reticulum',
-                           answers=['er']),
+                           answers=['er', 'endoplasmic reticulum']),
 
                   Question('Unless it is destined to be a membrane protein, where does a newly created protein end up after it '
                            'passes through the protein-lined channel in the endoplasmic reticulum membrane?',
@@ -382,13 +390,11 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
 
                   Question('After a protein is newly created, where does it end up first on its pathway out of the eukaryotic '
                            'cell?',
-                           answer='endoplasmic reticulum',
-                           answers=['er'],
+                           answers=['er', 'endoplasmic reticulum'],
                            options=['endoplasmic reticulum', 'Golgi apparatus', 'cytosol', 'nucleus']),
 
                   Question('In the secretory pathway, what comes first? The endoplasmic reticulum or the Golgi apparatus?',
-                           answer='endoplasmic reticulum',
-                           answers=['er']),
+                           answers=['er', 'endoplasmic reticulum']),
 
                   Question('What transports proteins from the endoplasmic reticulum to the Golgi apparatus?',
                            answer='vesicles'),
@@ -398,8 +404,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            options=['cis', 'trans', 'medial']),
 
                   Question('Where are newly created proteins folded?',
-                           answer='endoplasmic reticulum',
-                           answers=['er'],
+                           answers=['er', 'endoplasmic reticulum'],
                            options=['endoplasmic reticulum', 'Golgi apparatus']),
 
                   Question('What directions can protein traffic move in the Golgi apparatus?',
@@ -463,10 +468,9 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer='late endosome',
                            options=['late endosome', 'nucleus', 'Golgi apparatus', 'mitochondria', 'endoplasmic reticulum']),
 
-                  Question(
-                      'What is the general term for the process of internalisation of material from the cell surface known '
-                      'as?',
-                      answer='endocytosis'),
+                  Question('What is the general term for the process of internalisation of material from the cell surface '
+                           'known as?',
+                           answer='endocytosis'),
 
                   Question('Are the vesicles that are formed from the internalisation of material from the cell surface known '
                            'as early or late endosomes?',
@@ -499,22 +503,18 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer=False),
 
                   Question('What are the proteins called that vesicles and tubules depend on for their movement?',
-                           answer='motor',
-                           answers=['motor proteins']),
+                           answers=['motor', 'motor proteins']),
 
                   Question('The cytoskeleton is made up of microtubules, actin filaments and what other type of filament?',
-                           answer='intermediate',
-                           answers=['intermediate filament']),
+                           answers=['intermediate', 'intermediate filament']),
 
                   Question('The cytoskeleton is made up of microtubules, intermediate filaments and what other type of '
                            'filament?',
-                           answer='actin',
-                           answers=['actin filament']),
+                           answers=['actin', 'actin filament']),
 
                   Question('The cytoskeleton is made up of actin filaments, intermediate filaments and what other type of '
                            'tubule?',
-                           answer='micro',
-                           answers=['microtubule']),
+                           answers=['micro', 'microtubule']),
 
                   Question('What part of the cytoskeleton is best described by \'long hollow tubes\'?',
                            answer='microtubules',
@@ -560,22 +560,26 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
 
                   Question('What part of the cytoskeleton provides mechanical strength to the cell?',
                            answer='intermediate filaments',
-                           options=['microtubules', 'actin filaments', 'intermediate filaments'])
+                           options=['microtubules', 'actin filaments', 'intermediate filaments']),
+
+                  Question('Where is mRNA made in the nucleus?',
+                           answer='nucleolus')
                   ]
 
 biologyCellsQuestions = [Question('What group is the hydrophilic head of the constituents of a cell membrane made from?',
-                                  answer='phosphate',
-                                  answers=['phosphate group']),
+                                  answers=['phosphate', 'phosphate group']),
 
                          Question('What acids are the hydrophobic tail of the constituents of a cell membrane made from?',
-                                  answer='fatty',
-                                  answers=['fatty acids'])
+                                  answers=['fatty', 'fatty acids'])
                          ]
 
 for q in biologyQuestions:
-    q.addCategory('biology')
+    q.addCategories('biology')
 
 for q in cellsQuestions:
-    q.addCategory('cells')
+    q.addCategories('cells')
 
-questions = cellsQuestions + biologyQuestions
+for q in biologyCellsQuestions:
+    q.addCategories('biology', 'cells')
+
+questions = cellsQuestions + biologyQuestions + biologyCellsQuestions
