@@ -11,8 +11,8 @@ if __name__ == '__main__':
     settings = Settings()
 
     while program.running:
-        program.handleEvents()
-        program.draw()
+        #program.handleEvents()
+        #program.draw()
 
         #print('\nWhat would you like to do{}?'.format(
         #    ', {}'.format(program.currentProfile.name) if program.currentProfile is not None else ''))
@@ -23,7 +23,7 @@ if __name__ == '__main__':
         #print('  5: Exit')
         #print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
 
-        response = None#input().strip().lower()
+        response = input().strip().lower()
 
         while response not in ['1', '2', '3', '4', '5',
                                'learn', 'profiles', 'quick', 'settings', 'exit'] and False:

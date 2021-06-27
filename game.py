@@ -5,7 +5,7 @@ import time
 
 def quickPlay(questions, settings):
     numCorrect = 0
-    numQuestions = 20
+    numQuestions = 1
 
     wrong = []
 
@@ -21,7 +21,7 @@ def quickPlay(questions, settings):
 
     for ques in quickQuestions:
         correct = ques.ask(spelling=settings.spelling)
-        if correct == 0 :
+        if not correct:
             wrong.append(ques)
         numCorrect += correct
 
@@ -38,6 +38,7 @@ def quickPlay(questions, settings):
         totalTime,
         PrintColors.reset))
 
-    print('\nAnswers to incorrect questions:')
-    for ques in wrong:
-        ques.printQuestion(withAnswer=True)
+    if len(wrong) > 0:
+        print('\nAnswers to incorrect questions:')
+        for ques in wrong:
+            ques.printQuestion(withAnswer=True)
