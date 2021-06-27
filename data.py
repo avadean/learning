@@ -1,3 +1,6 @@
+from pygame import Color
+
+
 intToStr = {1: 'one',
             2: 'two',
             3: 'three',
@@ -11,7 +14,39 @@ intToStr = {1: 'one',
             }
 
 
-class Colors:
+class ScreenColors:
+    white = Color('white')
+    grey = Color('grey')
+    black = Color('black')
+
+    red = Color('red')
+    orange = Color('orange')
+    yellow = Color('yellow')
+    green = Color('green')
+    brown = Color('brown')
+    pink = Color('pink')
+    blue = Color('blue')
+    purple = Color('purple')
+
+    lightYellow = Color('light yellow')
+    lightGreen = Color('light green')
+    lightPink = Color('light pink')
+    lightBlue = Color('light blue')
+
+    darkRed = Color('dark red')
+    darkOrange = Color('dark orange')
+    darkGreen = Color('dark green')
+    darkBlue = Color('dark blue')
+
+    veryLightGreen = Color(212, 255, 228)
+    veryLightPink = Color(255, 220, 255)
+    veryLightBlue = Color(215, 235, 250)
+
+    fill = veryLightPink
+    buttons = white
+
+
+class PrintColors:
     default = '\033[39m'
     black = '\033[30m'
     red = '\033[31m'
