@@ -19,10 +19,13 @@ def getStrVersion(answer):
         return boolToStr.get(answer, None)
 
 
-def wrapText(text, maxChars, indent=0):
+def wrapText(text, fontWidth, width, indent=0):
     assert type(text) is str
-    assert type(maxChars) is int
+    assert type(fontWidth) is int
+    assert type(width) is int
     assert type(indent) is int
+
+    maxChars = width // fontWidth
 
     words = text.split(' ')
 
@@ -52,6 +55,21 @@ def wrapText(text, maxChars, indent=0):
         wrappedText.append(currentLine)
 
     return wrappedText
+
+
+def blitText(screen, text, font, color, left, top):
+    textObj = font.render(text, False, color)
+    screen.blit(textObj, (left, top))
+
+def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacing=2, indent=0):
+    fontWidth, fontHeight = font.size("W")
+    wrappedText = wrapText(text, fontWidth, width, indent)
+
+    textHeight = startTop
+    for line in wrappedText:
+        lineText = font.render(line, False, color)
+        screen.blit(lineText, (left, textHeight))
+        textHeight += fontHeight + lineSpacing
 
 
 class Fonts:

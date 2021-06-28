@@ -1,7 +1,7 @@
 import pygame
 pygame.init()
 
-from data import PrintColors, ScreenColors, Fonts, wrapText
+from data import PrintColors, ScreenColors, Fonts, blitText, blitTextWrapped
 from profile import loadProfiles, Profile
 from time import time
 
@@ -38,9 +38,6 @@ class Program:
 
     currentProfileText = None
     titleText = None
-
-    quickPlayResponseText = None
-    quickPlayQuestionText = None
 
     mainMenuButtonWidth = 280
     mainMenuButtonHeight = 40
@@ -222,52 +219,57 @@ class Program:
         if self.playing:
             lineSpacing = 2
 
-            fontWidth, fontHeight = Fonts.quickPlayQuestion.size("W")
-            wrappingCharacters = 4 * self.screenWidth // (5 * fontWidth)
-            self.quickPlayQuestionText = self.quickPlayQuestion.getQuestionBasic()
-            questionTextList = wrapText(self.quickPlayQuestionText, wrappingCharacters, indent=2)
+            # blit the question
+            blitTextWrapped(screen=self.screen,
+                            text=self.quickPlayQuestion.getQuestionBasic(),
+                            font=Fonts.quickPlayQuestion,
+                            color=ScreenColors.question,
+                            left=self.screenWidth // 10,
+                            width=4 * self.screenWidth // 5,
+                            startTop=self.screenHeight // 8,
+                            lineSpacing=lineSpacing,
+                            indent=2)
 
-            textHeight = self.screenHeight // 8
-            for line in questionTextList:
-                lineText = Fonts.quickPlayQuestion.render(line, False, ScreenColors.question)
-                self.screen.blit(lineText, (self.screenWidth // 10, textHeight))
-                textHeight += fontHeight + lineSpacing
+            # blit the options
+            blitTextWrapped(screen=self.screen,
+                            text=self.quickPlayQuestion.getOptionsBasic(),
+                            font=Fonts.quickPlayQuestion,
+                            color=ScreenColors.option,
+                            left=self.screenWidth // 10,
+                            width=4 * self.screenWidth // 5,
+                            startTop=self.screenHeight // 2,
+                            lineSpacing=lineSpacing,
+                            indent=2)
 
-            optionsText = self.quickPlayQuestion.getOptionsBasic()
-            optionsTextList = wrapText(optionsText, wrappingCharacters, indent=2)
+            # blit the response
+            blitTextWrapped(screen=self.screen,
+                            text=self.quickPlayResponse,
+                            font=Fonts.quickPlayResponse,
+                            color=ScreenColors.response,
+                            left=self.screenWidth // 10,
+                            width=4 * self.screenWidth // 5,
+                            startTop=2 * self.screenHeight // 3,
+                            lineSpacing=lineSpacing,
+                            indent=2)
 
-            textHeight = self.screenHeight // 2
-            for line in optionsTextList:
-                lineText = Fonts.quickPlayQuestion.render(line, False, ScreenColors.option)
-                self.screen.blit(lineText, (self.screenWidth // 10, textHeight))
-                textHeight += fontHeight + lineSpacing
-
-            fontWidth, fontHeight = Fonts.quickPlayResponse.size("W")
-            wrappingCharacters = 4 * self.screenWidth // (5 * fontWidth)
-            self.quickPlayResponseText = wrapText(self.quickPlayResponse, wrappingCharacters, indent=2)
-
-            textHeight = 2 * self.screenHeight // 3
-            for line in self.quickPlayResponseText:
-                lineText = Fonts.quickPlayResponse.render(line, False, ScreenColors.response)
-                self.screen.blit(lineText, (self.screenWidth // 10, textHeight))
-
-                textHeight += fontHeight + lineSpacing
-
-            if self.quickPlayLastQuestion is not None:
-                fontWidth, fontHeight = Fonts.quickPlayLastResponse.size("W")
-                text = Fonts.quickPlayLastResponse.render('{}'.format(
-                    self.quickPlayLastQuestion.exactResponse if self.quickPlayLastQuestion.correct else
-                    self.quickPlayLastResponse),
-                    False,
-                    ScreenColors.responseCorrect if self.quickPlayLastQuestion.correct else ScreenColors.responseWrong)
-                self.screen.blit(text, (5, self.screenHeight - fontHeight - 5))
-
+            # and the response box
             pygame.draw.rect(self.screen, ScreenColors.quickPlayBoxes,
                              (-5 + self.screenWidth // 10,
                               -5 + 2 * self.screenHeight // 3,
                               +5 + 4 * self.screenWidth // 5,
-                              +5 + 3 * (fontHeight + lineSpacing)),
+                              +5 + 3 * (Fonts.quickPlayResponse.get_height() + lineSpacing)),
                              2)
+
+            # blit the response to the last question if there has been a last question
+            if self.quickPlayLastQuestion is not None:
+                blitText(screen=self.screen,
+                         text='{}'.format(self.quickPlayLastQuestion.exactResponse if self.quickPlayLastQuestion.correct\
+                                              else self.quickPlayLastResponse),
+                         font=Fonts.quickPlayLastResponse,
+                         color=ScreenColors.responseCorrect if self.quickPlayLastQuestion.correct\
+                             else ScreenColors.responseWrong,
+                         left=5,
+                         top=self.screenHeight - Fonts.quickPlayLastResponse.get_height() - 5)
 
         elif self.completed:
             numCorrect = sum(ques.correct for ques in self.quickPlayQuestions)
