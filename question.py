@@ -26,6 +26,7 @@ class Question:
         self.lastResponse = None
         self.lastReponseRating = None
         self.exactResponse = None
+        self.correct = None
         # self.exactResponse is the 'exact' version of the response given
         # e.g. say the acceptable answers are ['black', 'dark']
         # if the lastResponse is 'blakc' then the exactResponse is 'black'
@@ -86,41 +87,9 @@ class Question:
 
             self.categories.append(category)
 
-    def ask(self, spelling=1.0, keepAsking=False):
-        if self.image is not None:
-            self.image.show()
-
-        self.printQuestion()
-        self.takeResponse()
-        self.calcExactResponseWithRating()
-
-        correct = False
-
-        while self.lastReponseRating < spelling:
-            if self.lastResponse == '':
-                print(u'\u23F9  skipping.\n')
-                break
-            elif keepAsking:
-                print(u'\u274C incorrect')
-                self.takeResponse('    ')
-                self.calcExactResponseWithRating()
-            else:
-                print(u'\u274C incorrect\n')
-                break
-        else:
-            correct = True
-            print(u'\u2705 correct!{}\n'.format('{} Exact answer is: {}{}'.format(PrintColors.lightYellow,
-                                                                                  self.exactResponse,
-                                                                                  PrintColors.reset)
-                                                if self.lastReponseRating < 1.0 else ''))
-
-        # if self.image is not None:
-        #     self.image.close()
-
-        return correct
-
-    def takeResponse(self, prompt=''):
-        self.lastResponse = input(prompt).strip().lower()
+    def takeResponse(self, response):
+        #self.lastResponse = input(prompt).strip().lower()
+        self.lastResponse = response
 
     def calcExactResponseWithRating(self):
         # see __init__ for explanation of what an exactResponse is
@@ -128,22 +97,47 @@ class Question:
         ratings = [SequenceMatcher(None, self.lastResponse, ans).ratio() for ans in self.answers]
 
         bestRating = 0.0
-        index = 0
+        index = -1
 
         for num, rating in enumerate(ratings):
             if rating > bestRating:
                 index = num
                 bestRating = rating
 
-        if bestRating == 0.0:
+        if index == -1:
             self.exactResponse = None
             self.lastReponseRating = 0.0
         else:
             self.exactResponse = self.answers[index]
             self.lastReponseRating = bestRating
 
+    def updateCorrect(self, correct):
+        assert type(correct) is bool
+
+        self.correct = correct
+
     def printQuestion(self, withAnswer=False):
         print(self.getQuestion(withAnswer), end='')
+
+    def getQuestionBasic(self, withHint=True, withOptions=True, withAnswer=False):
+        return '{}'.format(self.question)
+
+    def getOptionsBasic(self):
+        if self.options is None:
+            return ''
+
+        string = '{}'.format(self.options[0][0].upper() + self.options[0][1:].lower())
+
+        if len(self.options) > 2:
+            string += ', '
+            for option in self.options[1:-1]:
+                string += '{}, '.format(option)
+            string = string[:-2]  # Get rid of the last ', '
+            # ques += ', '.join(self.options[1:-1])
+
+        string += ' or {}?'.format(self.options[-1])
+
+        return string
 
     def getQuestion(self, withHint=True, withOptions=True, withAnswer=False):
         ques = '{}{}{}'.format(PrintColors.question,
@@ -211,7 +205,7 @@ biologyQuestions = [Question('There are four types of biological molecules that 
                     Question('What is the name of the ester composed of three fatty acids and glycerol?',
                              answer='triglyceride'),
 
-                    Question('What are type of energy storage are triglycerides used for?',
+                    Question('What type of energy storage are triglycerides used for?',
                              answers=['long', 'long term'],
                              options=['long term', 'short term']),
 
@@ -450,18 +444,18 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
 
                   Question('The enzymes that hydrolyse macromolecules in the lysosome are acid hydrolases or alkali '
                            'hydrolases?',
-                           answer='acid'),
+                           answers=['acid', 'acidic']),
 
                   Question('What is the pH type of the lumen of the lysosome?',
-                           answer='acidic',
+                           answers=['acid', 'acidic'],
                            options=['acidic', 'alkaic', 'neutral']),
 
                   Question('What is the pH type of the Golgi and trans-Golgi network?',
-                           answer='acidic',
+                           answers=['acid', 'acidic'],
                            options=['acidic', 'alkaic', 'neutral']),
 
                   Question('What is the pH type of the cytosol?',
-                           answer='alkaic',
+                           answers=['alkali', 'alkaic'],
                            options=['acidic', 'alkaic', 'neutral']),
 
                   Question('From the trans Golgi network, what intermediate compartment are lysosomal enzymes delivered to?',
@@ -477,7 +471,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer='early'),
 
                   Question('What is the pH type of early endosomes?',
-                           answer='acidic',
+                           answers=['acid', 'acidic'],
                            options=['acidic', 'alkaic', 'neutral']),
 
                   Question('What are the endosomes that return material to the cell surface called?',

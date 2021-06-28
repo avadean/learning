@@ -1,9 +1,16 @@
 from data import PrintColors
+from question import questions
 from random import sample
 
 import time
 
-def quickPlay(questions, settings):
+def getQuickPlay(numQuestions):
+    return sample(questions, k=numQuestions)
+
+
+
+
+def quickPlayOLD(settings):
     numCorrect = 0
     numQuestions = 20
 

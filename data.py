@@ -1,4 +1,5 @@
 from pygame import Color
+from pygame.font import SysFont
 
 
 intToStr = { 0: 'zero',
@@ -11,16 +12,58 @@ intToStr = { 0: 'zero',
 boolToStr = { True: 'yes', False: 'no' }
 
 def getStrVersion(answer):
-    possibleInt = intToStr.get(answer, None)
-    possibleBool = boolToStr.get(answer, None)
+    if type(answer) is int:
+        return intToStr.get(answer, None)
 
-    if possibleInt is not None:
-        return possibleInt
+    if type(answer) is bool:
+        return boolToStr.get(answer, None)
 
-    if possibleBool is not None:
-        return possibleBool
 
-    return None
+def wrapText(text, maxChars, indent=0):
+    assert type(text) is str
+    assert type(maxChars) is int
+    assert type(indent) is int
+
+    words = text.split(' ')
+
+    wrappedText = []
+    currentLine = ''
+    currentLineLength = 0
+
+    for word in words:
+        lengthOfNewWord = len(word)
+
+        if currentLineLength + lengthOfNewWord > maxChars:
+            wrappedText.append(currentLine)
+            currentLine = ' ' * indent + word + ' '
+            currentLineLength = lengthOfNewWord + indent + 1
+
+        elif currentLineLength + lengthOfNewWord == maxChars:
+            currentLine += word
+            wrappedText.append(currentLine)
+            currentLine = ' ' * indent
+            currentLineLength = indent
+
+        else:
+            currentLine += word + ' '
+            currentLineLength += lengthOfNewWord + 1
+
+    if currentLine.strip() != '':
+        wrappedText.append(currentLine)
+
+    return wrappedText
+
+
+class Fonts:
+    mainMenuButtons = SysFont('sfnsmono', size=24, bold=False, italic=False)
+    mainMenuButtons.set_underline(True)
+
+    mainMenuProfile = SysFont('sfnsmono', size=20, bold=False, italic=False)
+
+    mainMenuTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
+
+    quickPlayResponse = SysFont('sfnsmono', size=18, bold=False, italic=False)
+    quickPlayQuestion = SysFont('sfnsmono', size=18, bold=False, italic=False)
 
 
 class ScreenColors:
@@ -52,7 +95,18 @@ class ScreenColors:
     veryLightBlue = Color(215, 235, 250)
 
     fill = veryLightPink
-    buttons = white
+
+    mainMenuButtons = black
+    mainMenuCurrentProfileText = black
+
+    quickPlayBoxes = black
+
+    question = black
+    option = orange
+    response = blue
+
+    responseCorrect = darkGreen
+    responseWrong = red
 
 
 class PrintColors:
