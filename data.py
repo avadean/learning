@@ -57,9 +57,40 @@ def wrapText(text, fontWidth, width, indent=0):
     return wrappedText
 
 
-def blitText(screen, text, font, color, left, top):
+def blitText(screen, text, font, color,
+             left=None, top=None,
+             center=False, centerHor=False, centerVer=False,
+             topLeft=False, topRight=False, bottomLeft=False, bottomRight=False,
+             leftOffset=0, topOffset=0):
+
     textObj = font.render(text, False, color)
-    screen.blit(textObj, (left, top))
+
+    if topLeft:
+        screen.blit(textObj, (leftOffset,
+                              topOffset))
+    elif topRight:
+        screen.blit(textObj, (screen.get_width() - textObj.get_width() - leftOffset,
+                              topOffset))
+    elif bottomLeft:
+        screen.blit(textObj, (leftOffset,
+                              screen.get_height() - textObj.get_height() - topOffset))
+    elif bottomRight:
+        screen.blit(textObj, (screen.get_width() - textObj.get_width() - leftOffset,
+                              screen.get_height() - textObj.get_height() - topOffset))
+    elif center:
+        screen.blit(textObj, ((screen.get_width() - textObj.get_width()) // 2,
+                              (screen.get_height() - textObj.get_height()) // 2))
+    elif centerHor:
+        assert top is not None
+        screen.blit(textObj, ((screen.get_width() - textObj.get_width()) // 2,
+                               top))
+    elif centerVer:
+        assert left is not None
+        screen.blit(textObj, (left,
+                              (screen.get_height() - textObj.get_height()) // 2))
+    else:
+        assert left is not None and top is not None
+        screen.blit(textObj, (left, top))
 
 def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacing=2, indent=0):
     fontWidth, fontHeight = font.size("W")
@@ -76,9 +107,9 @@ class Fonts:
     mainMenuButtons = SysFont('sfnsmono', size=24, bold=False, italic=False)
     mainMenuButtons.set_underline(True)
 
-    mainMenuProfile = SysFont('sfnsmono', size=20, bold=False, italic=False)
-
     mainMenuTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
+
+    profile = SysFont('sfnsmono', size=22, bold=False, italic=False)
 
     quickPlayResponse = SysFont('sfnsmono', size=18, bold=False, italic=False)
     quickPlayLastResponse = SysFont('sfnsmono', size=24, bold=False, italic=False)
@@ -118,6 +149,7 @@ class ScreenColors:
 
     mainMenuButtons = black
     mainMenuCurrentProfileText = black
+    mainMenuTitle = black
 
     quickPlayBoxes = black
 

@@ -36,9 +36,6 @@ class Program:
     settingsRect = None
     exitRect = None
 
-    currentProfileText = None
-    titleText = None
-
     mainMenuButtonWidth = 280
     mainMenuButtonHeight = 40
 
@@ -50,7 +47,6 @@ class Program:
         self.profiles = None
         self.currentProfile = None
         self.getProfiles()
-        self.updateCurrentProfileText()
 
         self.createMainMenuButtons()
 
@@ -157,8 +153,6 @@ class Program:
         self.settingsText = Fonts.mainMenuButtons.render('Settings', False, ScreenColors.black)
         self.exitText = Fonts.mainMenuButtons.render('Exit', False, ScreenColors.black)
 
-        self.titleText = Fonts.mainMenuTitle.render('What would you like to do?', False, ScreenColors.black)
-
         self.learnRect = self.learnText.get_rect(center=(self.learnButton.x + self.mainMenuButtonWidth // 2,
                                                          self.learnButton.y + self.mainMenuButtonHeight // 2))
 
@@ -173,10 +167,6 @@ class Program:
 
         self.exitRect = self.exitText.get_rect(center=(self.exitButton.x + self.mainMenuButtonWidth // 2,
                                                        self.exitButton.y + self.mainMenuButtonHeight // 2))
-
-    def updateCurrentProfileText(self):
-        self.currentProfileText = Fonts.mainMenuProfile.render('{}'.format(self.currentProfile.nameNormal),
-                                                               False, ScreenColors.black)
 
     def draw(self):
         self.screen.fill(ScreenColors.fill)
@@ -205,7 +195,12 @@ class Program:
         self.screen.blit(self.exitText, self.exitRect)
 
         self.drawCurrentProfile()
-        self.screen.blit(self.titleText, ((self.screenWidth - self.titleText.get_width()) // 2, 20))
+        blitText(screen=self.screen,
+                 text='What would you like to do?',
+                 font=Fonts.mainMenuTitle,
+                 color=ScreenColors.mainMenuTitle,
+                 top=20,
+                 centerHor=True)
 
     def drawLearn(self):
         raise NotImplementedError
@@ -274,12 +269,12 @@ class Program:
         elif self.completed:
             numCorrect = sum(ques.correct for ques in self.quickPlayQuestions)
             perCent = 100.0 * float(numCorrect) / float(self.quickPlayNumQuestions)
-            summaryText = Fonts.quickPlaySummary.render(
-                '*** {} correct ({} %) in {} seconds! ***'.format(numCorrect, perCent, self.quickPlayTotalTime),
-                False, ScreenColors.summary)
 
-            self.screen.blit(summaryText, ((self.screenWidth - summaryText.get_width()) // 2,
-                                           (self.screenHeight - summaryText.get_height()) // 2))
+            blitText(screen=self.screen,
+                     text='*** {} correct ({} %) in {} seconds! ***'.format(numCorrect, perCent, self.quickPlayTotalTime),
+                     font=Fonts.quickPlaySummary,
+                     color=ScreenColors.summary,
+                     center=True)
 
         else:
             # Draw countdown.
@@ -289,8 +284,13 @@ class Program:
         raise NotImplementedError
 
     def drawCurrentProfile(self):
-        self.screen.blit(self.currentProfileText, (self.screenWidth - self.currentProfileText.get_width() - 10,
-                                                   self.screenHeight - self.currentProfileText.get_height() - 10))
+        blitText(screen=self.screen,
+                 text='{}'.format(self.currentProfile.nameNormal),
+                 font=Fonts.profile,
+                 color=ScreenColors.black,
+                 bottomRight=True,
+                 leftOffset=10,
+                 topOffset=10)
 
     def initialiseQuickPlay(self):
         self.quickPlayStartTime = time()
