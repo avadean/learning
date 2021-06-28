@@ -63,7 +63,9 @@ class Fonts:
     mainMenuTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
 
     quickPlayResponse = SysFont('sfnsmono', size=18, bold=False, italic=False)
+    quickPlayLastResponse = SysFont('sfnsmono', size=24, bold=False, italic=False)
     quickPlayQuestion = SysFont('sfnsmono', size=18, bold=False, italic=False)
+    quickPlaySummary = SysFont('sfnsmono', size=24, bold=False, italic=False)
 
 
 class ScreenColors:
@@ -104,6 +106,7 @@ class ScreenColors:
     question = black
     option = orange
     response = blue
+    summary = black
 
     responseCorrect = darkGreen
     responseWrong = red

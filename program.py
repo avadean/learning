@@ -3,6 +3,7 @@ pygame.init()
 
 from data import PrintColors, ScreenColors, Fonts, wrapText
 from profile import loadProfiles, Profile
+from time import time
 
 import game
 
@@ -63,6 +64,9 @@ class Program:
         self.quickPlayLastResponse = ''
         self.quickPlayNumQuestions = 20
         self.quickPlayLastQuestion = None
+        self.quickPlayStartTime = None
+        self.quickPlayFinishTime = None
+        self.quickPlayTotalTime = None
 
         self.playing = False
         self.completed = False
@@ -250,7 +254,8 @@ class Program:
                 textHeight += fontHeight + lineSpacing
 
             if self.quickPlayLastQuestion is not None:
-                text = Fonts.quickPlayResponse.render('{}'.format(
+                fontWidth, fontHeight = Fonts.quickPlayLastResponse.size("W")
+                text = Fonts.quickPlayLastResponse.render('{}'.format(
                     self.quickPlayLastQuestion.exactResponse if self.quickPlayLastQuestion.correct else
                     self.quickPlayLastResponse),
                     False,
@@ -265,8 +270,14 @@ class Program:
                              2)
 
         elif self.completed:
-            # Draw summary.
-            pass
+            numCorrect = sum(ques.correct for ques in self.quickPlayQuestions)
+            perCent = 100.0 * float(numCorrect) / float(self.quickPlayNumQuestions)
+            summaryText = Fonts.quickPlaySummary.render(
+                '*** {} correct ({} %) in {} seconds! ***'.format(numCorrect, perCent, self.quickPlayTotalTime),
+                False, ScreenColors.summary)
+
+            self.screen.blit(summaryText, ((self.screenWidth - summaryText.get_width()) // 2,
+                                           (self.screenHeight - summaryText.get_height()) // 2))
 
         else:
             # Draw countdown.
@@ -280,17 +291,24 @@ class Program:
                                                    self.screenHeight - self.currentProfileText.get_height() - 10))
 
     def initialiseQuickPlay(self):
+        self.quickPlayStartTime = time()
         self.playing = True
+        self.completed = False
         self.quickPlayQuestions = game.getQuickPlay(self.quickPlayNumQuestions)
         self.updateQuestion()
 
+    def finaliseQuickPlay(self):
+        self.quickPlayFinishTime = time()
+        self.quickPlayTotalTime = round(self.quickPlayFinishTime - self.quickPlayStartTime, 2)
+        self.quickPlayQuestion = None
+        self.quickPlayQuestionNum = 0
+        self.quickPlayLastQuestion = None
+        self.playing = False
+        self.completed = True
+
     def updateQuestion(self):
         if self.quickPlayQuestionNum == self.quickPlayNumQuestions:
-            self.quickPlayQuestion = None
-            self.quickPlayQuestionNum = 0
-            self.quickPlayLastQuestion = None
-            self.quickPlayLastQuestionCorrect = None
-            self.playing = False
+            self.finaliseQuickPlay()
         else:
             self.quickPlayLastQuestion = self.quickPlayQuestion
             self.quickPlayQuestion = self.quickPlayQuestions[self.quickPlayQuestionNum]
