@@ -25,19 +25,25 @@ class Program:
     quickPlayButton = None
     settingsButton = None
     exitButton = None
+    backButton = None
     learnText = None
     profilesText = None
     quickPlayText = None
     settingsText = None
     exitText = None
+    backText = None
     learnRect = None
     profilesRect = None
     quickPlayRect = None
     settingsRect = None
     exitRect = None
+    backRect = None
 
     mainMenuButtonWidth = 280
     mainMenuButtonHeight = 40
+
+    backButtonWidth = 280
+    backButtonHeight = 40
 
     def __init__(self, settings):
         self.running = True
@@ -48,18 +54,19 @@ class Program:
         self.currentProfile = None
         self.getProfiles()
 
-        self.createMainMenuButtons()
+        self.createButtons()
 
         self.quickPlayQuestion = None
         self.quickPlayQuestionNum = 0
         self.quickPlayQuestions = []
         self.quickPlayResponse = ''
         self.quickPlayLastResponse = ''
+        self.quickPlayNumCorrect = 0
         self.quickPlayNumQuestions = 20
         self.quickPlayLastQuestion = None
-        self.quickPlayStartTime = None
-        self.quickPlayFinishTime = None
-        self.quickPlayTotalTime = None
+        self.startTime = None
+        self.finishTime = None
+        self.totalTime = None
 
         self.playing = False
         self.completed = False
@@ -85,26 +92,22 @@ class Program:
                     elif self.exitButton.collidepoint(mousePos):
                         self.running = False
 
+                elif self.state == 'quick play':
+                    if self.backButton.collidepoint(mousePos):
+                        self.resetQuickPlay()
+
             if event.type == pygame.KEYDOWN:
                 if self.state == 'quick play':
 
                     if self.playing:
                         if event.key == pygame.K_RETURN:
-
-                            self.quickPlayQuestion.takeResponse(self.quickPlayResponse)
-                            self.quickPlayQuestion.calcExactResponseWithRating()
-
-                            if self.quickPlayQuestion.lastReponseRating >= self.settings.spelling:
-                                self.quickPlayQuestion.updateCorrect(True)
-                            else:
-                                self.quickPlayQuestion.updateCorrect(False)
-
-                            self.quickPlayLastResponse = self.quickPlayResponse if self.quickPlayResponse.strip() != '' else '-'
-                            self.quickPlayResponse = ''
-                            self.updateQuestion()
+                            self.quickPlayProcessResponse()
 
                         elif event.key == pygame.K_BACKSPACE:
                             self.quickPlayResponse = self.quickPlayResponse[:-1]
+
+                        elif event.key == pygame.K_ESCAPE:
+                            self.resetQuickPlay()
 
                         else:
                             self.quickPlayResponse += event.unicode
@@ -117,11 +120,12 @@ class Program:
         elif self.state == 'profiles':
             pass
         elif self.state == 'quick play':
-            pass
+            if self.running and not self.completed:
+                self.updateTimer()
         elif self.state == 'settings':
             pass
 
-    def createMainMenuButtons(self):
+    def createButtons(self):
         self.learnButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
                                        self.screenHeight // 6,
                                        self.mainMenuButtonWidth,
@@ -147,11 +151,17 @@ class Program:
                                        self.mainMenuButtonWidth,
                                        self.mainMenuButtonHeight)
 
+        self.backButton = pygame.Rect((self.screenWidth - self.backButtonWidth) // 2,
+                                      5 * self.screenHeight // 6,
+                                      self.backButtonWidth,
+                                      self.backButtonHeight)
+
         self.learnText = Fonts.mainMenuButtons.render('Learn', False, ScreenColors.black)
         self.profilesText = Fonts.mainMenuButtons.render('Profiles', False, ScreenColors.black)
         self.quickPlayText = Fonts.mainMenuButtons.render('Quick play', False, ScreenColors.black)
         self.settingsText = Fonts.mainMenuButtons.render('Settings', False, ScreenColors.black)
         self.exitText = Fonts.mainMenuButtons.render('Exit', False, ScreenColors.black)
+        self.backText = Fonts.buttons.render('Back', False, ScreenColors.black)
 
         self.learnRect = self.learnText.get_rect(center=(self.learnButton.x + self.mainMenuButtonWidth // 2,
                                                          self.learnButton.y + self.mainMenuButtonHeight // 2))
@@ -167,6 +177,9 @@ class Program:
 
         self.exitRect = self.exitText.get_rect(center=(self.exitButton.x + self.mainMenuButtonWidth // 2,
                                                        self.exitButton.y + self.mainMenuButtonHeight // 2))
+
+        self.backRect = self.backText.get_rect(center=(self.backButton.x + self.backButtonWidth // 2,
+                                                       self.backButton.y + self.backButtonHeight // 2))
 
     def draw(self):
         self.screen.fill(ScreenColors.fill)
@@ -210,6 +223,7 @@ class Program:
 
     def drawQuickPlay(self):
         self.drawCurrentProfile()
+        self.drawBackButton()
 
         if self.playing:
             lineSpacing = 2
@@ -266,15 +280,73 @@ class Program:
                          left=5,
                          top=self.screenHeight - Fonts.quickPlayLastResponse.get_height() - 5)
 
+            # blit the timer
+            blitText(screen=self.screen,
+                     text='{:6.2f}'.format(self.totalTime),
+                     font=Fonts.timer,
+                     color=ScreenColors.timer,
+                     topRight=True,
+                     leftOffset=10,
+                     topOffset=10)
+
+            # blit the correct count
+            blitText(screen=self.screen,
+                     text='{}/{}'.format(self.quickPlayNumCorrect, self.quickPlayQuestionNum-1),
+                     font=Fonts.correctCount,
+                     color=ScreenColors.black,
+                     topLeft=True,
+                     leftOffset=10,
+                     topOffset=10)
+
         elif self.completed:
-            numCorrect = sum(ques.correct for ques in self.quickPlayQuestions)
-            perCent = 100.0 * float(numCorrect) / float(self.quickPlayNumQuestions)
+            lineSpacing = 2
+
+            perCent = 100.0 * float(self.quickPlayNumCorrect) / float(self.quickPlayNumQuestions)
 
             blitText(screen=self.screen,
-                     text='*** {} correct ({} %) in {} seconds! ***'.format(numCorrect, perCent, self.quickPlayTotalTime),
+                     text='*** {} correct ({:5.1f} %) in {:6.2f} seconds! ***'.format(self.quickPlayNumCorrect,
+                                                                                      perCent,
+                                                                                      self.totalTime),
                      font=Fonts.quickPlaySummary,
                      color=ScreenColors.summary,
-                     center=True)
+                     centerHor=True,
+                     top=20)
+
+            height = 40 + Fonts.quickPlaySummary.get_height()
+            fontHeight = Fonts.quickPlayQuestionSummary.get_height()
+            for num, ques in enumerate(self.quickPlayQuestions, 1):
+                # blit the question
+                blitTextWrapped(screen=self.screen,
+                                text='{:>2}. {}'.format(num, ques.getQuestionBasic()),
+                                font=Fonts.quickPlayQuestionSummary,
+                                color=ScreenColors.question,
+                                left=self.screenWidth // 24,#self.screenWidth // 16,
+                                width=self.screenWidth // 3,#self.screenWidth // 4,
+                                startTop=height,
+                                maxLines=1)
+
+                # blit the response
+                blitTextWrapped(screen=self.screen,
+                                text='{}'.format(ques.lastResponse),
+                                font=Fonts.quickPlayQuestionSummary,
+                                color=ScreenColors.responseCorrect if ques.correct else ScreenColors.responseWrong,
+                                left=3 * self.screenWidth // 8 + self.screenWidth // 24,
+                                width=self.screenWidth // 4,
+                                startTop=height,
+                                maxLines=1)
+
+                # if wrong blit the correct answer
+                if not ques.correct:
+                    blitTextWrapped(screen=self.screen,
+                                    text='{}'.format(', '.join(ques.answers)),
+                                    font=Fonts.quickPlayQuestionSummary,
+                                    color=ScreenColors.blue,
+                                    left=2 * self.screenWidth // 3 + self.screenWidth // 24,
+                                    width=self.screenWidth // 4,
+                                    startTop=height,
+                                    maxLines=1)
+
+                height += lineSpacing + fontHeight
 
         else:
             # Draw countdown.
@@ -292,21 +364,53 @@ class Program:
                  leftOffset=10,
                  topOffset=10)
 
+    def drawBackButton(self):
+        pygame.draw.rect(self.screen, ScreenColors.buttons, self.exitButton, 2)
+        self.screen.blit(self.backText, self.backRect)
+
     def initialiseQuickPlay(self):
-        self.quickPlayStartTime = time()
+        self.startTime = time()
         self.playing = True
         self.completed = False
         self.quickPlayQuestions = game.getQuickPlay(self.quickPlayNumQuestions)
         self.updateQuestion()
 
     def finaliseQuickPlay(self):
-        self.quickPlayFinishTime = time()
-        self.quickPlayTotalTime = round(self.quickPlayFinishTime - self.quickPlayStartTime, 2)
+        self.finishTime = time()
+        self.totalTime = self.finishTime - self.startTime
         self.quickPlayQuestion = None
         self.quickPlayQuestionNum = 0
         self.quickPlayLastQuestion = None
         self.playing = False
         self.completed = True
+
+    def resetQuickPlay(self):
+        self.startTime = None
+        self.finishTime = None
+        self.totalTime = None
+        self.quickPlayQuestion = None
+        self.quickPlayQuestionNum = 0
+        self.quickPlayQuestions = []
+        self.quickPlayLastQuestion = None
+        self.quickPlayResponse = ''
+        self.quickPlayLastResponse = ''
+        self.quickPlayNumQuestions = 20
+        self.quickPlayNumCorrect = 0
+        self.playing = False
+        self.completed = False
+        self.state = 'main menu'
+
+    def quickPlayProcessResponse(self):
+        self.quickPlayQuestion.takeResponse(self.quickPlayResponse)
+        self.quickPlayQuestion.calcExactResponseWithRating()
+
+        correct = self.quickPlayQuestion.lastReponseRating >= self.settings.spelling
+        self.quickPlayNumCorrect += correct
+        self.quickPlayQuestion.updateCorrect(correct)
+
+        self.quickPlayLastResponse = self.quickPlayResponse if self.quickPlayResponse.strip() != '' else '-'
+        self.quickPlayResponse = ''
+        self.updateQuestion()
 
     def updateQuestion(self):
         if self.quickPlayQuestionNum == self.quickPlayNumQuestions:
@@ -315,6 +419,9 @@ class Program:
             self.quickPlayLastQuestion = self.quickPlayQuestion
             self.quickPlayQuestion = self.quickPlayQuestions[self.quickPlayQuestionNum]
             self.quickPlayQuestionNum += 1
+
+    def updateTimer(self):
+        self.totalTime = time() - self.startTime
 
     def getProfiles(self):
         self.profiles = loadProfiles()

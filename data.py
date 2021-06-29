@@ -92,9 +92,13 @@ def blitText(screen, text, font, color,
         assert left is not None and top is not None
         screen.blit(textObj, (left, top))
 
-def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacing=2, indent=0):
+def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacing=2, indent=0, maxLines=None):
     fontWidth, fontHeight = font.size("W")
     wrappedText = wrapText(text, fontWidth, width, indent)
+
+    if maxLines is not None:
+        assert type(maxLines) is int
+        wrappedText = wrappedText[0:maxLines]
 
     textHeight = startTop
     for line in wrappedText:
@@ -104,17 +108,23 @@ def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacin
 
 
 class Fonts:
-    mainMenuButtons = SysFont('sfnsmono', size=24, bold=False, italic=False)
+    buttons = SysFont('sfnsmono', size=24, bold=False, italic=False)
+
+    mainMenuButtons = buttons
     mainMenuButtons.set_underline(True)
 
     mainMenuTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
 
     profile = SysFont('sfnsmono', size=22, bold=False, italic=False)
 
+    timer = SysFont('sfnsmono', size=22, bold=False, italic=False)
+    correctCount = SysFont('sfnsmono', size=22, bold=False, italic=False)
+
     quickPlayResponse = SysFont('sfnsmono', size=18, bold=False, italic=False)
     quickPlayLastResponse = SysFont('sfnsmono', size=24, bold=False, italic=False)
     quickPlayQuestion = SysFont('sfnsmono', size=18, bold=False, italic=False)
     quickPlaySummary = SysFont('sfnsmono', size=24, bold=False, italic=False)
+    quickPlayQuestionSummary = SysFont('sfnsmono', size=14, bold=False, italic=False)
 
 
 class ScreenColors:
@@ -147,9 +157,12 @@ class ScreenColors:
 
     fill = veryLightPink
 
-    mainMenuButtons = black
-    mainMenuCurrentProfileText = black
+    buttons = black
+
+    mainMenuButtons = buttons
     mainMenuTitle = black
+
+    currentProfileText = black
 
     quickPlayBoxes = black
 
@@ -157,6 +170,8 @@ class ScreenColors:
     option = orange
     response = blue
     summary = black
+
+    timer = red
 
     responseCorrect = darkGreen
     responseWrong = red

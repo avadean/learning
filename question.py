@@ -119,7 +119,7 @@ class Question:
     def printQuestion(self, withAnswer=False):
         print(self.getQuestion(withAnswer), end='')
 
-    def getQuestionBasic(self, withHint=True, withOptions=True, withAnswer=False):
+    def getQuestionBasic(self):
         return '{}'.format(self.question)
 
     def getOptionsBasic(self):
@@ -511,36 +511,36 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answers=['micro', 'microtubule']),
 
                   Question('What part of the cytoskeleton is best described by \'long hollow tubes\'?',
-                           answer='microtubules',
+                           answers=['micro', 'microtubules'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton is best described by \'double-stranded helical polymer\'?',
-                           answer='actin filaments',
+                           answers=['actin', 'actin filaments'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton is best described by \'elongated and fibrous subunits\'?',
-                           answer='intermediate filaments',
+                           answers=['intermediate', 'intermediate filaments'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton localises organelles within the cell?',
-                           answer='microtubules',
+                           answers=['micro', 'microtubules'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton provides tracks along which many vesicles and tubules move?',
-                           answer='microtubules',
+                           answers=['micro', 'microtubules'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton is pivotal in the physical separation of chromosomes during mitosis?',
-                           answer='microtubules',
+                           answers=['micro', 'microtubules'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton provides the shape of the cell\'s surface?',
-                           answer='actin filaments',
+                           answers=['actin', 'actin filaments'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('What part of the cytoskeleton plays a major roles in the protrusion of material from the cell '
                            'surface?',
-                           answer='actin filaments',
+                           answers=['actin', 'actin filaments'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('Are microtubules dynamic structures?',
@@ -553,7 +553,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            answer=False),
 
                   Question('What part of the cytoskeleton provides mechanical strength to the cell?',
-                           answer='intermediate filaments',
+                           answers=['intermediate', 'intermediate filaments'],
                            options=['microtubules', 'actin filaments', 'intermediate filaments']),
 
                   Question('Where is mRNA made in the nucleus?',
