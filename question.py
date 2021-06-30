@@ -76,9 +76,8 @@ class Question:
         if type(answer) is str:
             self.answers.append(answer)
         else:
-            strVersion = getStrVersion(answer)
-            assert strVersion is not None, 'Answer {} not recognised'.format(answer)
-            self.answers.append(strVersion)
+            self.answers.append(str(answer))
+            self.answers.append(getStrVersion(answer))
 
     def addCategories(self, *args):
         for category in args:
@@ -89,12 +88,12 @@ class Question:
 
     def takeResponse(self, response):
         #self.lastResponse = input(prompt).strip().lower()
-        self.lastResponse = response
+        self.lastResponse = str(response).strip()
 
     def calcExactResponseWithRating(self):
         # see __init__ for explanation of what an exactResponse is
 
-        ratings = [SequenceMatcher(None, self.lastResponse, ans).ratio() for ans in self.answers]
+        ratings = [SequenceMatcher(None, self.lastResponse.lower(), ans.lower()).ratio() for ans in self.answers]
 
         bestRating = 0.0
         index = -1
@@ -327,7 +326,7 @@ cellsQuestions = [Question('How many cells is a prokaryote?',
                            options=['single', 'double']),
 
                   Question('What is the energy source for reactions of the cell?',
-                           answers=['atp', 'adenosine triphosphate']),
+                           answers=['ATP', 'adenosine triphosphate']),
 
                   Question('Do mitochondria contain DNA?',
                            answer=True),

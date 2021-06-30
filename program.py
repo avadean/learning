@@ -45,29 +45,38 @@ class Program:
     backButtonWidth = 280
     backButtonHeight = 40
 
+    state = None
+    settings = None
+
+    profiles = None
+    currentProfile = None
+
+    quickPlayQuestion = None
+    quickPlayQuestionNum = 0
+    quickPlayQuestions = []
+    quickPlayResponse = ''
+    quickPlayLastResponse = ''
+    quickPlayNumCorrect = 0
+    quickPlayNumQuestions = 20
+    quickPlayLastQuestion = None
+
+    startTime = None
+    finishTime = None
+    totalTime = None
+
+    running = False
+    playing = False
+    completed = False
+
     def __init__(self, settings):
-        self.running = True
         self.state = 'main menu'
         self.settings = settings
 
-        self.profiles = None
-        self.currentProfile = None
         self.getProfiles()
 
         self.createButtons()
 
-        self.quickPlayQuestion = None
-        self.quickPlayQuestionNum = 0
-        self.quickPlayQuestions = []
-        self.quickPlayResponse = ''
-        self.quickPlayLastResponse = ''
-        self.quickPlayNumCorrect = 0
-        self.quickPlayNumQuestions = 20
-        self.quickPlayLastQuestion = None
-        self.startTime = None
-        self.finishTime = None
-        self.totalTime = None
-
+        self.running = True
         self.playing = False
         self.completed = False
 
@@ -99,15 +108,15 @@ class Program:
             if event.type == pygame.KEYDOWN:
                 if self.state == 'quick play':
 
+                    if event.key == pygame.K_ESCAPE:
+                        self.resetQuickPlay()
+
                     if self.playing:
                         if event.key == pygame.K_RETURN:
                             self.quickPlayProcessResponse()
 
                         elif event.key == pygame.K_BACKSPACE:
                             self.quickPlayResponse = self.quickPlayResponse[:-1]
-
-                        elif event.key == pygame.K_ESCAPE:
-                            self.resetQuickPlay()
 
                         else:
                             self.quickPlayResponse += event.unicode
