@@ -19,6 +19,13 @@ def getStrVersion(answer):
         return boolToStr.get(answer, None)
 
 
+def readFile(file_):
+    with open(file_) as f:
+        lines = f.read().splitlines()
+
+    return lines
+
+
 def wrapText(text, fontWidth, width, indent=0):
     assert type(text) is str
     assert type(fontWidth) is int
@@ -106,6 +113,15 @@ def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacin
         screen.blit(lineText, (left, textHeight))
         textHeight += fontHeight + lineSpacing
 
+def blitListOfText(screen, textList, font, color, left, startTop, lineSpacing=2):
+    fontWidth, fontHeight = font.size("W")
+
+    textHeight = startTop
+    for text in textList:
+        lineText = font.render(text, False, color)
+        screen.blit(lineText, (left, textHeight))
+        textHeight += fontHeight + lineSpacing
+
 
 class Fonts:
     buttons = SysFont('sfnsmono', size=24, bold=False, italic=False)
@@ -115,7 +131,12 @@ class Fonts:
 
     mainMenuTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
 
+    profileButtons = SysFont('sfnsmono', size=20, bold=False, italic=False)
+
+    profileTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
+
     profile = SysFont('sfnsmono', size=22, bold=False, italic=False)
+    profileList = SysFont('sfnsmono', size=18, bold=False, italic=False)
 
     timer = SysFont('sfnsmono', size=22, bold=False, italic=False)
     correctCount = SysFont('sfnsmono', size=22, bold=False, italic=False)
@@ -161,6 +182,8 @@ class ScreenColors:
 
     mainMenuButtons = buttons
     mainMenuTitle = black
+
+    profileTitle = black
 
     currentProfileText = black
 

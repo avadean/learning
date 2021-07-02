@@ -1,8 +1,8 @@
 import pygame
 pygame.init()
 
-from data import PrintColors, ScreenColors, Fonts, blitText, blitTextWrapped
-from profile import loadProfiles, Profile
+from data import ScreenColors, Fonts, blitText, blitTextWrapped, blitListOfText
+from profile import loadProfiles, createProfile, getNextProfileID
 from time import time
 
 import game
@@ -26,18 +26,29 @@ class Program:
     settingsButton = None
     exitButton = None
     backButton = None
+    addProfileButton = None
+    selectProfileButton = None
+    deleteProfileButton = None
+
     learnText = None
     profilesText = None
     quickPlayText = None
     settingsText = None
     exitText = None
     backText = None
+    addProfileText = None
+    selectProfileText = None
+    deleteProfileText = None
+
     learnRect = None
     profilesRect = None
     quickPlayRect = None
     settingsRect = None
     exitRect = None
     backRect = None
+    addProfileRect = None
+    selectProfileRect = None
+    deleteProfileRect = None
 
     mainMenuButtonWidth = 280
     mainMenuButtonHeight = 40
@@ -45,11 +56,16 @@ class Program:
     backButtonWidth = 280
     backButtonHeight = 40
 
+    profileMenuButtonWidth = 180
+    profileMenuButtonHeight = 40
+
     state = None
     settings = None
 
     profiles = None
     currentProfile = None
+    nextProfileID = None
+    profileResponse = ''
 
     quickPlayQuestion = None
     quickPlayQuestionNum = 0
@@ -101,19 +117,103 @@ class Program:
                     elif self.exitButton.collidepoint(mousePos):
                         self.running = False
 
+                elif self.state == 'profiles':
+                    if self.addProfileButton.collidepoint(mousePos):
+                        self.state = 'add profile'
+                    elif self.selectProfileButton.collidepoint(mousePos):
+                        self.state = 'select profile'
+                    elif self.deleteProfileButton.collidepoint(mousePos):
+                        self.state = 'delete profile'
+                    elif self.backButton.collidepoint(mousePos):
+                        self.state = 'main menu'
+
+                elif self.state == 'add profile':
+                    if not self.addProfileButton.collidepoint(mousePos):
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+
+                elif self.state == 'select profile':
+                    if not self.selectProfileButton.collidepoint(mousePos):
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+
+                elif self.state == 'delete profile':
+                    if not self.deleteProfileButton.collidepoint(mousePos):
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+
                 elif self.state == 'quick play':
                     if self.backButton.collidepoint(mousePos):
                         self.resetQuickPlay()
+                        self.state = 'main menu'
 
             if event.type == pygame.KEYDOWN:
-                if self.state == 'quick play':
+                if self.state == 'main menu':
+                    if event.key == pygame.K_1:
+                        self.state = 'learn'
+                    elif event.key == pygame.K_2:
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_3:
+                        self.state = 'quick play'
+                        self.initialiseQuickPlay()
+                    elif event.key == pygame.K_4:
+                        self.state = 'settings'
+                    elif event.key == pygame.K_5:
+                        self.running = False
+
+                elif self.state == 'profiles':
+                    if event.key == pygame.K_ESCAPE:
+                        self.state = 'main menu'
+
+                elif self.state == 'add profile':
+                    if event.key == pygame.K_ESCAPE:
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_RETURN:
+                        self.addProfile(self.profileResponse)
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.profileResponse = self.profileResponse[:-1]
+                    else:
+                        self.profileResponse += event.unicode
+
+                elif self.state == 'select profile':
+                    if event.key == pygame.K_ESCAPE:
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_RETURN:
+                        self.selectProfile(self.profileResponse)
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.profileResponse = self.profileResponse[:-1]
+                    else:
+                        self.profileResponse += event.unicode
+
+                elif self.state == 'delete profile':
+                    if event.key == pygame.K_ESCAPE:
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_RETURN:
+                        self.deleteProfile(self.profileResponse)
+                        self.profileResponse = ''
+                        self.state = 'profiles'
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.profileResponse = self.profileResponse[:-1]
+                    else:
+                        self.profileResponse += event.unicode
+
+                elif self.state == 'quick play':
 
                     if event.key == pygame.K_ESCAPE:
                         self.resetQuickPlay()
+                        self.state = 'main menu'
 
                     if self.playing:
                         if event.key == pygame.K_RETURN:
                             self.quickPlayProcessResponse()
+                            self.quickPlayResponse = ''
 
                         elif event.key == pygame.K_BACKSPACE:
                             self.quickPlayResponse = self.quickPlayResponse[:-1]
@@ -165,12 +265,32 @@ class Program:
                                       self.backButtonWidth,
                                       self.backButtonHeight)
 
+        w = (self.screenWidth - 3 * self.profileMenuButtonWidth) // 4
+
+        self.addProfileButton = pygame.Rect(w,
+                                            7 * self.screenHeight // 10,
+                                            self.profileMenuButtonWidth,
+                                            self.profileMenuButtonHeight)
+
+        self.selectProfileButton = pygame.Rect((self.screenWidth - self.profileMenuButtonWidth) // 2,
+                                               7 * self.screenHeight // 10,
+                                               self.profileMenuButtonWidth,
+                                               self.profileMenuButtonHeight)
+
+        self.deleteProfileButton = pygame.Rect(self.screenWidth - w - self.profileMenuButtonWidth,
+                                               7 * self.screenHeight // 10,
+                                               self.profileMenuButtonWidth,
+                                               self.profileMenuButtonHeight)
+
         self.learnText = Fonts.mainMenuButtons.render('Learn', False, ScreenColors.black)
         self.profilesText = Fonts.mainMenuButtons.render('Profiles', False, ScreenColors.black)
         self.quickPlayText = Fonts.mainMenuButtons.render('Quick play', False, ScreenColors.black)
         self.settingsText = Fonts.mainMenuButtons.render('Settings', False, ScreenColors.black)
         self.exitText = Fonts.mainMenuButtons.render('Exit', False, ScreenColors.black)
         self.backText = Fonts.buttons.render('Back', False, ScreenColors.black)
+        self.addProfileText = Fonts.profileButtons.render('Add', False, ScreenColors.black)
+        self.selectProfileText = Fonts.profileButtons.render('Select', False, ScreenColors.black)
+        self.deleteProfileText = Fonts.profileButtons.render('Delete', False, ScreenColors.black)
 
         self.learnRect = self.learnText.get_rect(center=(self.learnButton.x + self.mainMenuButtonWidth // 2,
                                                          self.learnButton.y + self.mainMenuButtonHeight // 2))
@@ -190,13 +310,24 @@ class Program:
         self.backRect = self.backText.get_rect(center=(self.backButton.x + self.backButtonWidth // 2,
                                                        self.backButton.y + self.backButtonHeight // 2))
 
+        self.addProfileRect = self.addProfileText.get_rect(center=(self.addProfileButton.x + self.profileMenuButtonWidth // 2,
+                                                                   self.addProfileButton.y + self.profileMenuButtonHeight // 2))
+
+        self.selectProfileRect = self.selectProfileText.get_rect(
+            center=(self.selectProfileButton.x + self.profileMenuButtonWidth // 2,
+                    self.selectProfileButton.y + self.profileMenuButtonHeight // 2))
+
+        self.deleteProfileRect = self.deleteProfileText.get_rect(
+            center=(self.deleteProfileButton.x + self.profileMenuButtonWidth // 2,
+                    self.deleteProfileButton.y + self.profileMenuButtonHeight // 2))
+
     def draw(self):
         self.screen.fill(ScreenColors.fill)
         if self.state == 'main menu':
             self.drawMainMenu()
         elif self.state == 'learn':
             self.drawLearn()
-        elif self.state == 'profiles':
+        elif self.state in ['profiles', 'add profile', 'select profile', 'delete profile']:
             self.drawProfiles()
         elif self.state == 'quick play':
             self.drawQuickPlay()
@@ -217,18 +348,69 @@ class Program:
         self.screen.blit(self.exitText, self.exitRect)
 
         self.drawCurrentProfile()
+
         blitText(screen=self.screen,
                  text='What would you like to do?',
                  font=Fonts.mainMenuTitle,
                  color=ScreenColors.mainMenuTitle,
-                 top=20,
+                 top=self.screenHeight // 20,
                  centerHor=True)
 
     def drawLearn(self):
         raise NotImplementedError
 
     def drawProfiles(self):
-        raise NotImplementedError
+        self.drawCurrentProfile()
+        self.drawBackButton()
+
+        profileList = sorted([prof.name for prof in self.profiles])
+        blitListOfText(screen=self.screen,
+                       textList=['{}. {}'.format(num, name) for num, name in enumerate(profileList, 1)],
+                       font=Fonts.profileList,
+                       color=ScreenColors.black,
+                       left=self.screenWidth // 8,
+                       startTop=self.screenHeight // 8)
+
+        pygame.draw.rect(self.screen, ScreenColors.buttons, self.addProfileButton, 2)
+        pygame.draw.rect(self.screen, ScreenColors.buttons, self.selectProfileButton, 2)
+        pygame.draw.rect(self.screen, ScreenColors.buttons, self.deleteProfileButton, 2)
+
+        if self.state == 'add profile':
+            blitText(screen=self.screen,
+                     text=self.profileResponse,
+                     font=Fonts.profileTitle,
+                     color=ScreenColors.profileTitle,
+                     left=10+self.addProfileButton.left,
+                     top=self.addProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
+        else:
+            self.screen.blit(self.addProfileText, self.addProfileRect)
+
+        if self.state == 'select profile':
+            blitText(screen=self.screen,
+                     text=self.profileResponse,
+                     font=Fonts.profileTitle,
+                     color=ScreenColors.profileTitle,
+                     left=10 + self.selectProfileButton.left,
+                     top=self.selectProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
+        else:
+            self.screen.blit(self.selectProfileText, self.selectProfileRect)
+
+        if self.state == 'delete profile':
+            blitText(screen=self.screen,
+                     text=self.profileResponse,
+                     font=Fonts.profileTitle,
+                     color=ScreenColors.profileTitle,
+                     left=10 + self.deleteProfileButton.left,
+                     top=self.deleteProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
+        else:
+            self.screen.blit(self.deleteProfileText, self.deleteProfileRect)
+
+        blitText(screen=self.screen,
+                 text='Profiles',
+                 font=Fonts.profileTitle,
+                 color=ScreenColors.profileTitle,
+                 top=self.screenHeight // 20,
+                 centerHor=True)
 
     def drawQuickPlay(self):
         self.drawCurrentProfile()
@@ -365,24 +547,25 @@ class Program:
         raise NotImplementedError
 
     def drawCurrentProfile(self):
-        blitText(screen=self.screen,
-                 text='{}'.format(self.currentProfile.nameNormal),
-                 font=Fonts.profile,
-                 color=ScreenColors.black,
-                 bottomRight=True,
-                 leftOffset=10,
-                 topOffset=10)
+        if self.currentProfile is not None:
+            blitText(screen=self.screen,
+                     text='{}'.format(self.currentProfile.name),
+                     font=Fonts.profile,
+                     color=ScreenColors.black,
+                     bottomRight=True,
+                     leftOffset=10,
+                     topOffset=10)
 
     def drawBackButton(self):
         pygame.draw.rect(self.screen, ScreenColors.buttons, self.exitButton, 2)
         self.screen.blit(self.backText, self.backRect)
 
     def initialiseQuickPlay(self):
-        self.startTime = time()
         self.playing = True
         self.completed = False
         self.quickPlayQuestions = game.getQuickPlay(self.quickPlayNumQuestions)
         self.updateQuestion()
+        self.startTime = time()
 
     def finaliseQuickPlay(self):
         self.finishTime = time()
@@ -407,7 +590,6 @@ class Program:
         self.quickPlayNumCorrect = 0
         self.playing = False
         self.completed = False
-        self.state = 'main menu'
 
     def quickPlayProcessResponse(self):
         self.quickPlayQuestion.takeResponse(self.quickPlayResponse)
@@ -418,7 +600,6 @@ class Program:
         self.quickPlayQuestion.updateCorrect(correct)
 
         self.quickPlayLastResponse = self.quickPlayResponse if self.quickPlayResponse.strip() != '' else '-'
-        self.quickPlayResponse = ''
         self.updateQuestion()
 
     def updateQuestion(self):
@@ -434,138 +615,42 @@ class Program:
 
     def getProfiles(self):
         self.profiles = loadProfiles()
-        self.currentProfile = self.profiles[0] # This is the Guest profile.
+        self.nextProfileID = getNextProfileID()
+        self.currentProfile = None
 
         for prof in self.profiles:
             if prof.default:
                 self.currentProfile = prof
                 break
 
-    def queryProfiles(self):
-        if len(self.profiles) == 0:
-            self.zeroProfiles()
-        elif self.currentProfile is None:
-            print('\nNo profile selected')
-            self.selectProfile()
+    def addProfile(self, profileName):
+        assert type(profileName) is str
 
-        print('\nCurrent profile: {}'.format(self.currentProfile.name))
+        if profileName.strip().lower() in [prof.name.strip().lower() for prof in self.profiles]:
+            return
 
-        otherProfiles = [prof.name for prof in self.profiles if prof.name != self.currentProfile.name]
+        newProfile = createProfile(self.nextProfileID, profileName)
 
-        if len(otherProfiles) == 0:
-            print('No other profiles to select')
-        else:
-            print('Other profiles: {}'.format(', '.join(otherProfiles)))
+        if newProfile is None:
+            return
 
-        print('\nWould you like to {}create{}, {}select{} or {}delete{} a profile? Or go {}back{}?'.format(
-            PrintColors.underline, PrintColors.reset,
-            PrintColors.underline, PrintColors.reset,
-            PrintColors.underline, PrintColors.reset,
-            PrintColors.underline, PrintColors.reset))
-        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-
-        response = input().strip().lower()
-
-        while response not in ['create', 'select', 'delete', 'back']:
-            print('Incorrect option supplied. Try again.')
-            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-            response = input().strip().lower()
-
-        if response == 'create':
-            self.createProfile()
-        elif response == 'select':
-            self.selectProfile()
-        elif response == 'delete':
-            self.deleteProfile()
-        elif response == 'back':
-            pass
-
-    def createProfile(self):
-        print('')
-        name = input('Please enter a name: ').strip()
-
-        while name.lower() in [prof.nameNormal.lower() for prof in self.profiles]:
-            name = input('That name is taken, please enter a different one: ').strip()
-
-        newProfile = Profile(name)
         self.profiles.append(newProfile)
 
-        if sum(prof.default for prof in self.profiles) >= 1:
-            print('Would you like to make this the default profile? {}Yes{} or {}no{}?'.format(PrintColors.underline,
-                                                                                               PrintColors.reset,
-                                                                                               PrintColors.underline,
-                                                                                               PrintColors.reset))
-            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
+        self.selectProfile(profileName)
 
-            response = input().strip().lower()
-            while response not in ['yes', 'no']:
-                print('Incorrect option supplied. Try again.')
-                print('{}->{} '.format(PrintColors.blink, PrintColors.reset),
-                      end='')
-                response = input().strip().lower()
-
-            if response == 'yes':
-                self.currentProfile.default = False
-                newProfile.default = True
-
+    def selectProfile(self, profileName=None):
+        if profileName is None:
+            self.currentProfile = None
         else:
-            newProfile.default = True
+            assert type(profileName) is str
 
-        self.currentProfile = newProfile
-        print('Profile {} created and now in use'.format(self.currentProfile.name))
+            for prof in self.profiles:
+                if profileName.strip().lower() == prof.name.strip().lower():
+                    self.currentProfile = prof
 
-    def selectProfile(self):
-        print('\nPlease choose a profile to select: {}'.format(', '.join([prof.name for prof in self.profiles])))
-        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
+    def deleteProfile(self, profileName):
+        assert type(profileName) is str
 
-        response = input().strip().lower()
-        while response not in [prof.nameNormal.lower() for prof in self.profiles]:
-            print('Incorrect option supplied. Try again.')
-            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-            response = input().strip().lower()
+        self.profiles = [prof for prof in self.profiles if profileName.strip().lower() != prof.name.strip().lower()]
 
-        for num, nameNormal in enumerate([prof.nameNormal.lower() for prof in self.profiles]):
-            if response == nameNormal:
-                self.currentProfile = self.profiles[num]
-
-        print('Profile {} now in use'.format(self.currentProfile.name))
-
-    def deleteProfile(self):
-        print('Please choose a profile to delete: {}'.format(', '.join([prof.name for prof in self.profiles])))
-        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-
-        response = input().strip().lower()
-        while response not in [prof.nameNormal.lower() for prof in self.profiles]:
-            print('Incorrect option supplied. Try again.')
-            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-            response = input().strip().lower()
-
-        self.profiles = [prof for prof in self.profiles if prof.nameNormal.lower() != response]
-
-        if len(self.profiles) == 0:
-            self.zeroProfiles()
-        else:
-            self.selectProfile()
-
-    def createGuestProfile(self):
-        newGuestProfile = Profile('Guest')
-        self.profiles.append(newGuestProfile)
-        self.currentProfile = newGuestProfile
-
-    def zeroProfiles(self):
-        print('\nNo profiles loaded. Would you like to create your own? {}Yes{} or {}no{}?'.format(PrintColors.underline,
-                                                                                                   PrintColors.reset,
-                                                                                                   PrintColors.underline,
-                                                                                                   PrintColors.reset))
-        print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-
-        response = input().strip().lower()
-        while response not in ['yes', 'no']:
-            print('Incorrect option supplied. Try again.')
-            print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
-            response = input().strip().lower()
-
-        if response == 'yes':
-            self.createProfile()
-        elif response == 'no':
-            self.createGuestProfile()
+        self.selectProfile()
