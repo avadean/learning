@@ -2,7 +2,7 @@ import pygame
 pygame.init()
 
 from data import ScreenColors, Fonts, blitText, blitTextWrapped, blitListOfText
-from profile import loadProfiles, createProfile, getNextProfileID
+from profile import loadProfiles, getNextProfileID, createProfile, deleteProfile
 from time import time
 
 import game
@@ -634,6 +634,8 @@ class Program:
         if newProfile is None:
             return
 
+        self.nextProfileID += 1
+
         self.profiles.append(newProfile)
 
         self.selectProfile(profileName)
@@ -651,6 +653,20 @@ class Program:
     def deleteProfile(self, profileName):
         assert type(profileName) is str
 
-        self.profiles = [prof for prof in self.profiles if profileName.strip().lower() != prof.name.strip().lower()]
+        profileFile = None
+        profiles = []
 
-        self.selectProfile()
+        for prof in self.profiles:
+            if profileName.strip().lower() == prof.name.strip().lower():
+                profileFile = prof.file
+            else:
+                profiles.append(prof)
+
+        if profileFile is None:
+            return
+
+        self.profiles = profiles
+
+        deleteProfile(profileFile)
+
+        self.getProfiles()

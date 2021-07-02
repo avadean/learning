@@ -1,15 +1,48 @@
-from data import PrintColors, readFile
+from data import readFile, writeFile
 
 import os
 
 profileDir = 'files/profiles/'
 
+def updateAttribute(attribute, newValue, file_, strict=False):
+    assert type(attribute) is str
+    assert type(newValue) in [str, int, bool]
+    assert type(file_) is str
+    assert type(strict) is bool
+
+    fileLines = readFile(file_)
+
+    attribute = attribute.strip().lower()
+
+    updated = False
+
+    for num, line in enumerate(fileLines):
+        line = line.strip().lower()
+
+        if line.startswith(attribute):
+
+            if type(newValue) is bool:
+                newValue = 'true' if newValue else 'false'
+
+            fileLines[num] = '{}: {}'.format(attribute, newValue)
+
+            updated = True
+
+    writeFile(fileLines, file_)
+
+    if strict and not updated:
+        raise ValueError('Cannot find {} in {}'.format(attribute, file_))
+
+
 def getAttribute(attribute, fileLines):
     results = []
 
+    attribute = attribute.strip().lower()
+
     for line in fileLines:
-        if line.strip().lower().startswith(attribute.strip().lower()):
-            strippedLine = line.strip()[len(attribute):].strip()
+        line = line.strip()
+        if line.lower().startswith(attribute):
+            strippedLine = line[len(attribute):].strip()
             if strippedLine != '' and strippedLine[0] == ':':
                 strippedLine = strippedLine[1:].strip()
             results.append(strippedLine)
@@ -34,7 +67,7 @@ def createProfile(ID, name):
 
     if not os.path.exists(profileFile):
         with open(profileFile, 'w') as f:
-            f.write('ID: {}\n'.format(ID))
+            f.write('id: {}\n'.format(ID))
             f.write('name: {}\n'.format(name))
             f.write('file: {}\n'.format(profileFile))
             f.write('status: active\n')
@@ -53,13 +86,17 @@ def createProfile(ID, name):
     return newProfile
 
 
+def deleteProfile(profileFile):
+    updateAttribute('status', 'inactive', profileDir + profileFile, strict=True)
+
+
 def getNextProfileID():
     ID = 0
 
     for file_ in os.listdir(profileDir):
         fileLines = readFile(profileDir + file_)
 
-        newID = getAttribute('ID', fileLines)
+        newID = getAttribute('id', fileLines)
 
         if newID is not None and newID.isdigit():
             ID = max(int(newID), ID)
@@ -78,7 +115,7 @@ def loadProfiles():
             raise ValueError('Cannot find status in {}'.format(file_))
 
         if status == 'active':
-            ID = getAttribute('ID', fileLines)
+            ID = getAttribute('id', fileLines)
             if ID is None:
                 raise ValueError('Cannot find ID in {}'.format(file_))
             elif not ID.isdigit():

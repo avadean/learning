@@ -1,3 +1,5 @@
+import os
+
 from pygame import Color
 from pygame.font import SysFont
 
@@ -17,6 +19,19 @@ def getStrVersion(answer):
 
     if type(answer) is bool:
         return boolToStr.get(answer, None)
+
+
+def writeFile(fileLines, file_):
+    assert type(fileLines) is list
+    assert all(type(line) is str for line in fileLines)
+    assert type(file_) is str
+    assert len(file_) > 0
+    assert file_[-4:] == '.txt'
+    assert os.getcwd() not in ['/', '/Users']
+
+    with open(file_, 'w') as f:
+        for line in fileLines:
+            f.write(line + '\n')
 
 
 def readFile(file_):
