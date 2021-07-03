@@ -86,10 +86,6 @@ def createProfile(ID, name):
     return newProfile
 
 
-def deleteProfile(profileFile):
-    updateAttribute('status', 'inactive', profileDir + profileFile, strict=True)
-
-
 def getNextProfileID():
     ID = 0
 

@@ -2,7 +2,7 @@ import pygame
 pygame.init()
 
 from data import ScreenColors, Fonts, blitText, blitTextWrapped, blitListOfText
-from profile import loadProfiles, getNextProfileID, createProfile, deleteProfile
+from profile import loadProfiles, getNextProfileID, createProfile
 from time import time
 
 import game
