@@ -2,7 +2,7 @@ import pygame
 pygame.init()
 pygame.mixer.init()
 
-from data import ScreenColors, Fonts, blitText, blitTextWrapped, blitListOfText
+from data import Button, Fonts, ScreenColors, blitText, blitTextWrapped, blitListOfText
 from os import listdir
 from profile import loadProfiles, getNextProfileID, createProfile
 from time import time
@@ -113,46 +113,56 @@ class Program:
                 mousePos = event.pos
 
                 if self.state == 'main menu':
-                    if self.learnButton.collidepoint(mousePos):
+                    if self.learnButton.clicked(mousePos):
                         self.state = 'learn'
-                    elif self.profilesButton.collidepoint(mousePos):
+                    elif self.profilesButton.clicked(mousePos):
                         self.state = 'profiles'
-                    elif self.quickPlayButton.collidepoint(mousePos):
+                    elif self.quickPlayButton.clicked(mousePos):
                         self.state = 'quick play'
                         self.initialiseQuickPlay()
-                    elif self.settingsButton.collidepoint(mousePos):
+                    elif self.settingsButton.clicked(mousePos):
                         self.state = 'settings'
-                    elif self.exitButton.collidepoint(mousePos):
+                    elif self.exitButton.clicked(mousePos):
                         self.running = False
 
                 elif self.state == 'profiles':
-                    if self.addProfileButton.collidepoint(mousePos):
+                    if self.addProfileButton.clicked(mousePos):
+                        self.profileResponse = ''
+                        self.addProfileButton.updateText(self.profileResponse)
                         self.state = 'add profile'
-                    elif self.selectProfileButton.collidepoint(mousePos):
+                    elif self.selectProfileButton.clicked(mousePos):
+                        self.profileResponse = ''
+                        self.selectProfileButton.updateText(self.profileResponse)
                         self.state = 'select profile'
-                    elif self.deleteProfileButton.collidepoint(mousePos):
+                    elif self.deleteProfileButton.clicked(mousePos):
+                        self.profileResponse = ''
+                        self.deleteProfileButton.updateText(self.profileResponse)
                         self.state = 'delete profile'
-                    elif self.backButton.collidepoint(mousePos):
+                    elif self.backButton.clicked(mousePos):
                         self.state = 'main menu'
 
                 elif self.state == 'add profile':
-                    if not self.addProfileButton.collidepoint(mousePos):
+                    if not self.addProfileButton.clicked(mousePos):
                         self.profileResponse = ''
                         self.state = 'profiles'
 
                 elif self.state == 'select profile':
-                    if not self.selectProfileButton.collidepoint(mousePos):
+                    if not self.selectProfileButton.clicked(mousePos):
                         self.profileResponse = ''
                         self.state = 'profiles'
 
                 elif self.state == 'delete profile':
-                    if not self.deleteProfileButton.collidepoint(mousePos):
+                    if not self.deleteProfileButton.clicked(mousePos):
                         self.profileResponse = ''
                         self.state = 'profiles'
 
                 elif self.state == 'quick play':
-                    if self.backButton.collidepoint(mousePos):
+                    if self.backButton.clicked(mousePos):
                         self.resetQuickPlay()
+                        self.state = 'main menu'
+
+                elif self.state == 'settings':
+                    if self.backButton.clicked(mousePos):
                         self.state = 'main menu'
 
             if event.type == pygame.KEYDOWN:
@@ -176,10 +186,12 @@ class Program:
                 elif self.state == 'add profile':
                     if event.key == pygame.K_ESCAPE:
                         self.profileResponse = ''
+                        self.addProfileButton.updateText('Add')
                         self.state = 'profiles'
                     elif event.key == pygame.K_RETURN:
                         self.addProfile(self.profileResponse)
                         self.profileResponse = ''
+                        self.addProfileButton.updateText('Add')
                         self.state = 'profiles'
                     elif event.key == pygame.K_BACKSPACE:
                         self.profileResponse = self.profileResponse[:-1]
@@ -189,10 +201,12 @@ class Program:
                 elif self.state == 'select profile':
                     if event.key == pygame.K_ESCAPE:
                         self.profileResponse = ''
+                        self.selectProfileButton.updateText('Select')
                         self.state = 'profiles'
                     elif event.key == pygame.K_RETURN:
                         self.selectProfile(self.profileResponse)
                         self.profileResponse = ''
+                        self.selectProfileButton.updateText('Select')
                         self.state = 'profiles'
                     elif event.key == pygame.K_BACKSPACE:
                         self.profileResponse = self.profileResponse[:-1]
@@ -202,10 +216,12 @@ class Program:
                 elif self.state == 'delete profile':
                     if event.key == pygame.K_ESCAPE:
                         self.profileResponse = ''
+                        self.deleteProfileButton.updateText('Delete')
                         self.state = 'profiles'
                     elif event.key == pygame.K_RETURN:
                         self.deleteProfile(self.profileResponse)
                         self.profileResponse = ''
+                        self.deleteProfileButton.updateText('Delete')
                         self.state = 'profiles'
                     elif event.key == pygame.K_BACKSPACE:
                         self.profileResponse = self.profileResponse[:-1]
@@ -229,6 +245,10 @@ class Program:
                         else:
                             self.quickPlayResponse += event.unicode
 
+                elif self.state == 'settings':
+                    if event.key == pygame.K_ESCAPE:
+                        self.state = 'main menu'
+
     def update(self):
         self.checkMusic()
 
@@ -238,6 +258,12 @@ class Program:
             pass
         elif self.state == 'profiles':
             pass
+        elif self.state == 'add profile':
+            self.addProfileButton.updateText(self.profileResponse)
+        elif self.state == 'select profile':
+            self.selectProfileButton.updateText(self.profileResponse)
+        elif self.state == 'delete profile':
+            self.deleteProfileButton.updateText(self.profileResponse)
         elif self.state == 'quick play':
             if self.running and not self.completed:
                 self.updateTimer()
@@ -245,91 +271,68 @@ class Program:
             pass
 
     def createButtons(self):
-        self.learnButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
-                                       self.screenHeight // 6,
-                                       self.mainMenuButtonWidth,
-                                       self.mainMenuButtonHeight)
+        self.learnButton = Button(text='Learn',
+                                  centerHor=True,
+                                  width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                  top=self.screenHeight // 6, height=self.mainMenuButtonHeight,
+                                  borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
-        self.profilesButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
-                                           self.screenHeight // 3,
-                                           self.mainMenuButtonWidth,
-                                           self.mainMenuButtonHeight)
+        self.profilesButton = Button(text='Profiles',
+                                     centerHor=True,
+                                     width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                     top=self.screenHeight // 3, height=self.mainMenuButtonHeight,
+                                     borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
-        self.quickPlayButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
-                                           self.screenHeight // 2,
-                                           self.mainMenuButtonWidth,
-                                           self.mainMenuButtonHeight)
+        self.quickPlayButton = Button(text='Quick play',
+                                      centerHor=True,
+                                      width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                      top=self.screenHeight // 2, height=self.mainMenuButtonHeight,
+                                      borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
-        self.settingsButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
-                                           2 * self.screenHeight // 3,
-                                           self.mainMenuButtonWidth,
-                                           self.mainMenuButtonHeight)
+        self.settingsButton = Button(text='Settings',
+                                     centerHor=True,
+                                     width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                     top=2 * self.screenHeight // 3, height=self.mainMenuButtonHeight,
+                                     borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
-        self.exitButton = pygame.Rect((self.screenWidth - self.mainMenuButtonWidth) // 2,
-                                       5 * self.screenHeight // 6,
-                                       self.mainMenuButtonWidth,
-                                       self.mainMenuButtonHeight)
+        self.exitButton = Button(text='Exit',
+                                 centerHor=True,
+                                 width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                 top=5 * self.screenHeight // 6, height=self.mainMenuButtonHeight,
+                                 borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
-        self.backButton = pygame.Rect((self.screenWidth - self.backButtonWidth) // 2,
-                                      5 * self.screenHeight // 6,
-                                      self.backButtonWidth,
-                                      self.backButtonHeight)
+        self.backButton = Button(text='Back',
+                                 centerHor=True,
+                                 width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
+                                 top=5 * self.screenHeight // 6, height=self.mainMenuButtonHeight,
+                                 borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
 
         w = (self.screenWidth - 3 * self.profileMenuButtonWidth) // 4
 
-        self.addProfileButton = pygame.Rect(w,
-                                            7 * self.screenHeight // 10,
-                                            self.profileMenuButtonWidth,
-                                            self.profileMenuButtonHeight)
+        self.addProfileButton = Button(text='Add',
+                                       topLeft=True,
+                                       width=self.profileMenuButtonWidth,
+                                       height=self.profileMenuButtonHeight,
+                                       horOffset=w,
+                                       verOffset=7 * self.screenHeight // 10,
+                                       borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
-        self.selectProfileButton = pygame.Rect((self.screenWidth - self.profileMenuButtonWidth) // 2,
-                                               7 * self.screenHeight // 10,
-                                               self.profileMenuButtonWidth,
-                                               self.profileMenuButtonHeight)
+        self.selectProfileButton = Button(text='Select',
+                                          centerHor=True,
+                                          width=self.profileMenuButtonWidth,
+                                          height=self.profileMenuButtonHeight,
+                                          top=7 * self.screenHeight // 10,
+                                          screenWidth=self.screenWidth,
+                                          borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
-        self.deleteProfileButton = pygame.Rect(self.screenWidth - w - self.profileMenuButtonWidth,
-                                               7 * self.screenHeight // 10,
-                                               self.profileMenuButtonWidth,
-                                               self.profileMenuButtonHeight)
-
-        self.learnText = Fonts.mainMenuButtons.render('Learn', False, ScreenColors.black)
-        self.profilesText = Fonts.mainMenuButtons.render('Profiles', False, ScreenColors.black)
-        self.quickPlayText = Fonts.mainMenuButtons.render('Quick play', False, ScreenColors.black)
-        self.settingsText = Fonts.mainMenuButtons.render('Settings', False, ScreenColors.black)
-        self.exitText = Fonts.mainMenuButtons.render('Exit', False, ScreenColors.black)
-        self.backText = Fonts.buttons.render('Back', False, ScreenColors.black)
-        self.addProfileText = Fonts.profileButtons.render('Add', False, ScreenColors.black)
-        self.selectProfileText = Fonts.profileButtons.render('Select', False, ScreenColors.black)
-        self.deleteProfileText = Fonts.profileButtons.render('Delete', False, ScreenColors.black)
-
-        self.learnRect = self.learnText.get_rect(center=(self.learnButton.x + self.mainMenuButtonWidth // 2,
-                                                         self.learnButton.y + self.mainMenuButtonHeight // 2))
-
-        self.profilesRect = self.profilesText.get_rect(center=(self.profilesButton.x + self.mainMenuButtonWidth // 2,
-                                                               self.profilesButton.y + self.mainMenuButtonHeight // 2))
-
-        self.quickPlayRect = self.quickPlayText.get_rect(center=(self.quickPlayButton.x + self.mainMenuButtonWidth // 2,
-                                                                 self.quickPlayButton.y + self.mainMenuButtonHeight // 2))
-
-        self.settingsRect = self.settingsText.get_rect(center=(self.settingsButton.x + self.mainMenuButtonWidth // 2,
-                                                               self.settingsButton.y + self.mainMenuButtonHeight // 2))
-
-        self.exitRect = self.exitText.get_rect(center=(self.exitButton.x + self.mainMenuButtonWidth // 2,
-                                                       self.exitButton.y + self.mainMenuButtonHeight // 2))
-
-        self.backRect = self.backText.get_rect(center=(self.backButton.x + self.backButtonWidth // 2,
-                                                       self.backButton.y + self.backButtonHeight // 2))
-
-        self.addProfileRect = self.addProfileText.get_rect(center=(self.addProfileButton.x + self.profileMenuButtonWidth // 2,
-                                                                   self.addProfileButton.y + self.profileMenuButtonHeight // 2))
-
-        self.selectProfileRect = self.selectProfileText.get_rect(
-            center=(self.selectProfileButton.x + self.profileMenuButtonWidth // 2,
-                    self.selectProfileButton.y + self.profileMenuButtonHeight // 2))
-
-        self.deleteProfileRect = self.deleteProfileText.get_rect(
-            center=(self.deleteProfileButton.x + self.profileMenuButtonWidth // 2,
-                    self.deleteProfileButton.y + self.profileMenuButtonHeight // 2))
+        self.deleteProfileButton = Button(text='Delete',
+                                          topRight=True,
+                                          width=self.profileMenuButtonWidth,
+                                          height=self.profileMenuButtonHeight,
+                                          horOffset=w,
+                                          verOffset=7 * self.screenHeight // 10,
+                                          screenWidth=self.screenWidth,
+                                          borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
     def draw(self):
         self.screen.fill(ScreenColors.fill)
@@ -345,19 +348,13 @@ class Program:
             self.drawSettings()
 
     def drawMainMenu(self):
-        pygame.draw.rect(self.screen, ScreenColors.mainMenuButtons, self.learnButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.mainMenuButtons, self.profilesButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.mainMenuButtons, self.quickPlayButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.mainMenuButtons, self.settingsButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.mainMenuButtons, self.exitButton, 2)
-
-        self.screen.blit(self.learnText, self.learnRect)
-        self.screen.blit(self.profilesText, self.profilesRect)
-        self.screen.blit(self.quickPlayText, self.quickPlayRect)
-        self.screen.blit(self.settingsText, self.settingsRect)
-        self.screen.blit(self.exitText, self.exitRect)
-
         self.drawCurrentProfile()
+
+        self.learnButton.draw(self.screen)
+        self.profilesButton.draw(self.screen)
+        self.quickPlayButton.draw(self.screen)
+        self.settingsButton.draw(self.screen)
+        self.exitButton.draw(self.screen)
 
         blitText(screen=self.screen,
                  text='What would you like to do?',
@@ -371,7 +368,7 @@ class Program:
 
     def drawProfiles(self):
         self.drawCurrentProfile()
-        self.drawBackButton()
+        self.backButton.draw(self.screen)
 
         blitText(screen=self.screen,
                  text='Profiles',
@@ -427,39 +424,9 @@ class Program:
                        left=3 * w + 2 * columnWidth,
                        startTop=self.screenHeight // 6)
 
-        pygame.draw.rect(self.screen, ScreenColors.buttons, self.addProfileButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.buttons, self.selectProfileButton, 2)
-        pygame.draw.rect(self.screen, ScreenColors.buttons, self.deleteProfileButton, 2)
-
-        if self.state == 'add profile':
-            blitText(screen=self.screen,
-                     text=self.profileResponse,
-                     font=Fonts.profileTitle,
-                     color=ScreenColors.profileTitle,
-                     left=10+self.addProfileButton.left,
-                     top=self.addProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
-        else:
-            self.screen.blit(self.addProfileText, self.addProfileRect)
-
-        if self.state == 'select profile':
-            blitText(screen=self.screen,
-                     text=self.profileResponse,
-                     font=Fonts.profileTitle,
-                     color=ScreenColors.profileTitle,
-                     left=10 + self.selectProfileButton.left,
-                     top=self.selectProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
-        else:
-            self.screen.blit(self.selectProfileText, self.selectProfileRect)
-
-        if self.state == 'delete profile':
-            blitText(screen=self.screen,
-                     text=self.profileResponse,
-                     font=Fonts.profileTitle,
-                     color=ScreenColors.profileTitle,
-                     left=10 + self.deleteProfileButton.left,
-                     top=self.deleteProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
-        else:
-            self.screen.blit(self.deleteProfileText, self.deleteProfileRect)
+        self.addProfileButton.draw(self.screen)
+        self.selectProfileButton.draw(self.screen)
+        self.deleteProfileButton.draw(self.screen)
 
     def drawQuickPlay(self):
         self.drawCurrentProfile()
@@ -526,8 +493,8 @@ class Program:
                      font=Fonts.timer,
                      color=ScreenColors.timer,
                      topRight=True,
-                     leftOffset=10,
-                     topOffset=10)
+                     horOffset=10,
+                     verOffset=10)
 
             # blit the correct count
             blitText(screen=self.screen,
@@ -535,8 +502,8 @@ class Program:
                      font=Fonts.correctCount,
                      color=ScreenColors.black,
                      topLeft=True,
-                     leftOffset=10,
-                     topOffset=10)
+                     horOffset=10,
+                     verOffset=10)
 
         elif self.completed:
             lineSpacing = 2
@@ -593,7 +560,24 @@ class Program:
             pass
 
     def drawSettings(self):
-        raise NotImplementedError
+        self.drawCurrentProfile()
+        self.drawBackButton()
+
+        blitText(screen=self.screen,
+                 text='Settings',
+                 font=Fonts.settingsTitle,
+                 color=ScreenColors.settingsTitle,
+                 top=self.screenHeight // 20,
+                 centerHor=True)
+
+        blitListOfText(screen=self.screen,
+                       textList=self.settings.getSettings(),
+                       font=Fonts.settings,
+                       color=ScreenColors.black,
+                       startTop=self.screenHeight // 8,
+                       centerHor=True)
+
+
 
     def drawCurrentProfile(self):
         if self.currentProfile is not None:
@@ -602,12 +586,8 @@ class Program:
                      font=Fonts.profile,
                      color=ScreenColors.black,
                      bottomRight=True,
-                     leftOffset=10,
-                     topOffset=10)
-
-    def drawBackButton(self):
-        pygame.draw.rect(self.screen, ScreenColors.buttons, self.exitButton, 2)
-        self.screen.blit(self.backText, self.backRect)
+                     horOffset=10,
+                     verOffset=10)
 
     def initialiseQuickPlay(self):
         self.playing = True
@@ -656,7 +636,7 @@ class Program:
         self.quickPlayQuestion.takeResponse(self.quickPlayResponse)
         self.quickPlayQuestion.calcExactResponseWithRating()
 
-        correct = self.quickPlayQuestion.lastReponseRating >= self.settings.spelling
+        correct = self.quickPlayQuestion.lastReponseRating >= self.settings.spellingValue
         self.quickPlayNumCorrect += correct
         self.quickPlayQuestion.updateCorrect(correct)
 
@@ -690,6 +670,9 @@ class Program:
 
     def addProfile(self, profileName):
         assert type(profileName) is str
+
+        if profileName.strip() == '':
+            return
 
         if profileName.strip().lower() in [prof.name.strip().lower() for prof in self.profiles]:
             return
@@ -740,8 +723,10 @@ class Program:
         if len(self.songs) == 0:
             return
 
-        if not pygame.mixer.music.get_busy():
+        if not pygame.mixer.music.get_busy() and self.settings.musicOn:
             self.playNextSong()
+        elif pygame.mixer.music.get_busy():
+            self.stopSong()
 
     def playNextSong(self):
         nextSong = self.songs[0]
@@ -750,3 +735,8 @@ class Program:
         pygame.mixer.music.play()
 
         self.songs = self.songs[1:] + [nextSong]
+
+    def stopSong(self):
+        pygame.mixer.stop()
+
+        self.songs = self.songs[1:] + [self.songs[0]]

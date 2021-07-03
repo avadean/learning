@@ -1,6 +1,6 @@
 import os
 
-from pygame import Color
+from pygame import Color, draw, Rect
 from pygame.font import SysFont
 
 
@@ -83,36 +83,41 @@ def blitText(screen, text, font, color,
              left=None, top=None,
              center=False, centerHor=False, centerVer=False,
              topLeft=False, topRight=False, bottomLeft=False, bottomRight=False,
-             leftOffset=0, topOffset=0):
+             horOffset=0, verOffset=0):
 
     textObj = font.render(text, False, color)
 
     if topLeft:
-        screen.blit(textObj, (leftOffset,
-                              topOffset))
+        screen.blit(textObj, (horOffset,
+                              verOffset))
     elif topRight:
-        screen.blit(textObj, (screen.get_width() - textObj.get_width() - leftOffset,
-                              topOffset))
+        screen.blit(textObj, (screen.get_width() - textObj.get_width() - horOffset,
+                              verOffset))
     elif bottomLeft:
-        screen.blit(textObj, (leftOffset,
-                              screen.get_height() - textObj.get_height() - topOffset))
+        screen.blit(textObj, (horOffset,
+                              screen.get_height() - textObj.get_height() - verOffset))
     elif bottomRight:
-        screen.blit(textObj, (screen.get_width() - textObj.get_width() - leftOffset,
-                              screen.get_height() - textObj.get_height() - topOffset))
+        screen.blit(textObj, (screen.get_width() - textObj.get_width() - horOffset,
+                              screen.get_height() - textObj.get_height() - verOffset))
     elif center:
         screen.blit(textObj, ((screen.get_width() - textObj.get_width()) // 2,
                               (screen.get_height() - textObj.get_height()) // 2))
     elif centerHor:
-        assert top is not None
+        assert type(top) is int
+
         screen.blit(textObj, ((screen.get_width() - textObj.get_width()) // 2,
-                               top))
+                               top - textObj.get_height() // 2))
     elif centerVer:
-        assert left is not None
-        screen.blit(textObj, (left,
+        assert type(left) is int
+
+        screen.blit(textObj, (left - textObj.get_width() // 2,
                               (screen.get_height() - textObj.get_height()) // 2))
     else:
-        assert left is not None and top is not None
-        screen.blit(textObj, (left, top))
+        assert type(left) is int
+        assert type(top) is int
+
+        screen.blit(textObj, (left - textObj.get_width() // 2,
+                              top - textObj.get_height() // 2))
 
 def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacing=2, indent=0, maxLines=None):
     fontWidth, fontHeight = font.size("W")
@@ -128,14 +133,50 @@ def blitTextWrapped(screen, text, font, color, left, width, startTop, lineSpacin
         screen.blit(lineText, (left, textHeight))
         textHeight += fontHeight + lineSpacing
 
-def blitListOfText(screen, textList, font, color, left, startTop, lineSpacing=2):
+def blitListOfText(screen, textList, font, color,
+                   left=None, startTop=None,
+                   center=False, centerHor=False, centerVer=False,
+                   lineSpacing=2):
     fontWidth, fontHeight = font.size("W")
 
-    textHeight = startTop
-    for text in textList:
-        lineText = font.render(text, False, color)
-        screen.blit(lineText, (left, textHeight))
-        textHeight += fontHeight + lineSpacing
+    if center:
+        textHeight = startTop
+        for text in textList:
+            lineText = font.render(text, False, color)
+            screen.blit(lineText, ((screen.get_width() - lineText.get_width()) // 2,
+                                  (screen.get_height() - lineText.get_height()) // 2))
+            textHeight += fontHeight + lineSpacing
+
+    elif centerHor:
+        assert type(startTop) is int
+
+        textHeight = startTop
+        for text in textList:
+            lineText = font.render(text, False, color)
+            screen.blit(lineText, ((screen.get_width() - lineText.get_width()) // 2,
+                                   textHeight))
+            textHeight += fontHeight + lineSpacing
+
+    elif centerVer:
+        assert type(left) is int
+
+        textHeight = startTop
+        for text in textList:
+            lineText = font.render(text, False, color)
+            screen.blit(lineText, (left,
+                                   (screen.get_height() - lineText.get_height()) // 2))
+            textHeight += fontHeight + lineSpacing
+
+    else:
+        assert type(left) is int
+        assert type(startTop) is int
+
+        textHeight = startTop
+        for text in textList:
+            lineText = font.render(text, False, color)
+            screen.blit(lineText, (left, textHeight))
+            textHeight += fontHeight + lineSpacing
+
 
 
 class Fonts:
@@ -154,6 +195,9 @@ class Fonts:
 
     profile = SysFont('sfnsmono', size=22, bold=False, italic=False)
     profileList = SysFont('sfnsmono', size=18, bold=False, italic=False)
+
+    settings = SysFont('sfnsmono', size=18, bold=False, italic=False)
+    settingsTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
 
     timer = SysFont('sfnsmono', size=22, bold=False, italic=False)
     correctCount = SysFont('sfnsmono', size=22, bold=False, italic=False)
@@ -200,7 +244,11 @@ class ScreenColors:
     mainMenuButtons = buttons
     mainMenuTitle = black
 
+    profileButtons = buttons
+
     profileTitle = black
+
+    settingsTitle = black
 
     currentProfileText = black
 
@@ -246,3 +294,150 @@ class PrintColors:
     options = underline + yellow
     hint = italicized + red
     answer = blue
+
+
+class Button:
+    def __init__(self, text='', optionList=None,
+                 width=None, height=None,
+                 left=None, top=None,
+                 screenWidth=None, screenHeight=None,
+                 center=False, centerHor=False, centerVer=False,
+                 topLeft=False, topRight=False, bottomLeft=False, bottomRight=False,
+                 horOffset=0, verOffset=0,
+                 color=None, highlightColor=None, borderColor=None, font=None):
+
+        assert type(text) is str
+
+        if optionList is not None:
+            assert type(optionList) is list
+            assert all(type(option) == str for option in optionList)
+
+        assert type(width) is int
+        assert type(height) is int
+
+        assert type(center) is bool
+        assert type(centerHor) is bool
+        assert type(centerVer) is bool
+        assert type(topLeft) is bool
+        assert type(topRight) is bool
+        assert type(bottomLeft) is bool
+        assert type(bottomRight) is bool
+
+        if center:
+            assert type(screenWidth) is int
+            assert type(screenHeight) is int
+
+        elif centerHor:
+            assert type(screenWidth) is int
+            assert type(top) is int
+
+        elif centerVer:
+            assert type(left) is int
+            assert type(screenHeight) is int
+
+        elif topLeft:
+            assert type(horOffset) is int
+            assert type(verOffset) is int
+
+        elif topRight:
+            assert type(horOffset) is int
+            assert type(verOffset) is int
+            assert type(screenWidth) is int
+
+        elif bottomLeft:
+            assert type(horOffset) is int
+            assert type(verOffset) is int
+            assert type(screenHeight) is int
+
+        elif bottomRight:
+            assert type(horOffset) is int
+            assert type(verOffset) is int
+            assert type(screenWidth) is int
+            assert type(screenHeight) is int
+
+        else:
+            assert type(left) is int
+            assert type(top) is int
+
+        if topLeft:
+            self.left = horOffset
+            self.top = verOffset
+
+        elif topRight:
+            self.left = screenWidth - width - horOffset
+            self.top = verOffset
+
+        elif bottomLeft:
+            self.left = horOffset
+            self.top = screenHeight - height - verOffset
+
+        elif bottomRight:
+            self.left = screenWidth - width - horOffset
+            self.top = screenHeight - height - verOffset
+
+        elif center:
+            self.left = (screenWidth - width) // 2
+            self.top = (screenHeight - height) // 2
+
+        elif centerHor:
+            self.left = (screenWidth - width) // 2
+            self.top = top
+
+        elif centerVer:
+            self.left = left
+            self.top = (screenHeight - height) // 2
+
+        else:
+            self.left = left
+            self.top = top
+
+        if color is not None:
+            assert type(color) is Color
+
+        if highlightColor is not None:
+            assert type(highlightColor) is Color
+
+        if borderColor is not None:
+            assert type(borderColor) is Color
+
+        #assert type(font) is SysFont
+
+        self.width = width
+        self.height = height
+
+        self.rect = Rect(self.left, self.top, self.width, self.height)
+
+        self.text = text
+        self.optionList = optionList
+
+        self.color = color if color is not None else False
+        self.highlightColor = highlightColor if highlightColor is not None else False
+        self.borderColor = borderColor if borderColor is not None else False
+        self.font = font
+
+        self.selected = False
+
+    def draw(self, screen):
+        if self.selected and self.highlightColor:
+            draw.rect(screen, self.highlightColor, self.rect)
+        elif self.color:
+            draw.rect(screen, self.color, self.rect)
+
+        if self.borderColor:
+            draw.rect(screen, self.borderColor, self.rect, 2)
+
+        text = self.font.render(self.text, False, ScreenColors.black)
+        screen.blit(text, text.get_rect(center=self.rect.center))
+
+    def updateText(self, newText):
+        assert type(newText) is str
+
+        self.text = newText
+
+    def clicked(self, mousePos):
+        mouseX, mouseY = mousePos
+
+        if (self.left <= mouseX <= (self.left + self.width)) and (self.top <= mouseY <= (self.top + self.height)):
+            return True
+
+        return False

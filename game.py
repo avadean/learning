@@ -27,7 +27,7 @@ def quickPlayOLD(settings):
     timeInitial = time.time()
 
     for ques in quickQuestions:
-        correct = ques.ask(spelling=settings.spelling)
+        correct = ques.ask(spelling=settings.spellingValue)
         if not correct:
             wrong.append(ques)
         numCorrect += correct

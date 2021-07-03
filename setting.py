@@ -1,22 +1,31 @@
 from data import PrintColors
 
-
-spellingLevel = {'exact': 1.0,
-                 'strict': 0.9,
-                 'moderate': 0.8,
-                 'fair': 0.7,
-                 'leniant': 0.6,
-                 'easy': 0.5
-                 }
+spellingValues = {'exact': 1.0,
+                  'strict': 0.9,
+                  'moderate': 0.8,
+                  'fair': 0.7,
+                  'leniant': 0.6,
+                  'easy': 0.5
+                  }
 
 
 class Settings:
-    def __init__(self, spelling='moderate'):
+    def __init__(self, spelling='moderate', musicOn=True):
         assert type(spelling) is str
-        assert spelling.lower() in spellingLevel, 'Accepted spelling settings: {}'.format(', '.join(spellingLevel))
+        assert spelling.lower() in spellingValues, 'Accepted spelling settings: {}'.format(', '.join(spellingValues))
 
-        self.spellingLevel = spelling.lower()
-        self.spelling = spellingLevel[spelling.lower()]
+        assert type(musicOn) is bool
+
+        self.spelling = spelling.lower()
+        self.spellingValue = spellingValues[spelling.lower()]
+
+        self.musicOn = musicOn
+
+    def getSettings(self):
+        settings = ['{:>20} : {:<20}'.format('Spelling', self.spelling),
+                    '{:>20} : {:<20}'.format('Music', 'on' if self.musicOn else 'off')]
+
+        return settings
 
     def update(self):
         print('\nWould you like to update anything?')
@@ -45,19 +54,19 @@ class Settings:
 
     def requestSpellingUpdate(self):
         print('\nThe current spelling setting is {}{}{}'.format(PrintColors.underline,
-                                                                self.spellingLevel,
+                                                                self.spelling,
                                                                 PrintColors.reset))
-        print('Please choose a spelling setting: {}'.format(', '.join(spellingLevel)))
+        print('Please choose a spelling setting: {}'.format(', '.join(spellingValues)))
         print('{}->{} '.format(PrintColors.blink, PrintColors.reset), end='')
 
     def setSpellingUpdate(self, newSpelling):
         assert type(newSpelling) is str
 
-        if newSpelling.lower() in spellingLevel:
-            self.spellingLevel = newSpelling.lower()
-            self.spelling = spellingLevel[newSpelling.lower()]
+        if newSpelling.lower() in spellingValues:
+            self.spelling = newSpelling.lower()
+            self.spellingValue = spellingValues[newSpelling.lower()]
             print('Spelling setting updated to {}{}{}'.format(PrintColors.underline,
-                                                              self.spellingLevel,
+                                                              self.spelling,
                                                               PrintColors.reset))
             return True
         else:
