@@ -363,13 +363,59 @@ class Program:
         self.drawCurrentProfile()
         self.drawBackButton()
 
-        profileList = sorted([prof.name for prof in self.profiles])
+        blitText(screen=self.screen,
+                 text='Profiles',
+                 font=Fonts.profileTitle,
+                 color=ScreenColors.profileTitle,
+                 top=self.screenHeight // 20,
+                 centerHor=True)
+
+        columnWidth = self.screenWidth // 5
+        w = (self.screenWidth - 3 * columnWidth) // 4
+
+        blitText(screen=self.screen,
+                 text='Name',
+                 font=Fonts.profileHeader,
+                 color=ScreenColors.black,
+                 left=w + columnWidth // 2,
+                 top=self.screenHeight // 9)
+
+        blitText(screen=self.screen,
+                 text='Qs correct',
+                 font=Fonts.profileHeader,
+                 color=ScreenColors.black,
+                 left=2 * w + columnWidth,
+                 top=self.screenHeight // 9)
+
+        blitText(screen=self.screen,
+                 text='Qs attempted',
+                 font=Fonts.profileHeader,
+                 color=ScreenColors.black,
+                 left=3 * w + 2 * columnWidth,
+                 top=self.screenHeight // 9)
+
+        profilesSorted = sorted(self.profiles, key=lambda x: x.name)
+
         blitListOfText(screen=self.screen,
-                       textList=['{}. {}'.format(num, name) for num, name in enumerate(profileList, 1)],
+                       textList=['{}. {}'.format(num, prof.name) for num, prof in enumerate(profilesSorted, 1)],
                        font=Fonts.profileList,
                        color=ScreenColors.black,
-                       left=self.screenWidth // 8,
-                       startTop=self.screenHeight // 8)
+                       left=w,
+                       startTop=self.screenHeight // 6)
+
+        blitListOfText(screen=self.screen,
+                       textList=['{}'.format(prof.questionsCorrect) for prof in profilesSorted],
+                       font=Fonts.profileList,
+                       color=ScreenColors.black,
+                       left=2 * w + columnWidth,
+                       startTop=self.screenHeight // 6)
+
+        blitListOfText(screen=self.screen,
+                       textList=['{}'.format(prof.questionsAttempted) for prof in profilesSorted],
+                       font=Fonts.profileList,
+                       color=ScreenColors.black,
+                       left=3 * w + 2 * columnWidth,
+                       startTop=self.screenHeight // 6)
 
         pygame.draw.rect(self.screen, ScreenColors.buttons, self.addProfileButton, 2)
         pygame.draw.rect(self.screen, ScreenColors.buttons, self.selectProfileButton, 2)
@@ -404,13 +450,6 @@ class Program:
                      top=self.deleteProfileButton.top + self.profileMenuButtonHeight // 2 - Fonts.profileTitle.get_height() // 2)
         else:
             self.screen.blit(self.deleteProfileText, self.deleteProfileRect)
-
-        blitText(screen=self.screen,
-                 text='Profiles',
-                 font=Fonts.profileTitle,
-                 color=ScreenColors.profileTitle,
-                 top=self.screenHeight // 20,
-                 centerHor=True)
 
     def drawQuickPlay(self):
         self.drawCurrentProfile()
@@ -563,23 +602,34 @@ class Program:
     def initialiseQuickPlay(self):
         self.playing = True
         self.completed = False
+
         self.quickPlayQuestions = game.getQuickPlay(self.quickPlayNumQuestions)
+
         self.updateQuestion()
         self.startTime = time()
 
     def finaliseQuickPlay(self):
         self.finishTime = time()
         self.totalTime = self.finishTime - self.startTime
+
         self.quickPlayQuestion = None
         self.quickPlayQuestionNum = 0
         self.quickPlayLastQuestion = None
+
         self.playing = False
         self.completed = True
 
     def resetQuickPlay(self):
+        if self.currentProfile is not None:
+            self.currentProfile.rewriteFile()
+
+        for ques in self.quickPlayQuestions:
+            ques.updateCorrect(False)
+
         self.startTime = None
         self.finishTime = None
         self.totalTime = None
+
         self.quickPlayQuestion = None
         self.quickPlayQuestionNum = 0
         self.quickPlayQuestions = []
@@ -588,6 +638,7 @@ class Program:
         self.quickPlayLastResponse = ''
         self.quickPlayNumQuestions = 20
         self.quickPlayNumCorrect = 0
+
         self.playing = False
         self.completed = False
 
@@ -598,6 +649,10 @@ class Program:
         correct = self.quickPlayQuestion.lastReponseRating >= self.settings.spelling
         self.quickPlayNumCorrect += correct
         self.quickPlayQuestion.updateCorrect(correct)
+
+        if self.currentProfile is not None:
+            self.currentProfile.questionsAttempted += 1
+            self.currentProfile.questionsCorrect += correct
 
         self.quickPlayLastResponse = self.quickPlayResponse if self.quickPlayResponse.strip() != '' else '-'
         self.updateQuestion()
@@ -653,20 +708,20 @@ class Program:
     def deleteProfile(self, profileName):
         assert type(profileName) is str
 
-        profileFile = None
+        profileToDelete = None
         profiles = []
 
         for prof in self.profiles:
             if profileName.strip().lower() == prof.name.strip().lower():
-                profileFile = prof.file
+                profileToDelete = prof
             else:
                 profiles.append(prof)
 
-        if profileFile is None:
+        if profileToDelete is None:
             return
 
         self.profiles = profiles
 
-        deleteProfile(profileFile)
+        profileToDelete.delete()
 
         self.getProfiles()

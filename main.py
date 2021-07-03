@@ -11,7 +11,7 @@ if __name__ == '__main__':
         program.update()
         program.draw()
 
-        program.clock.tick(60)
+        program.clock.tick(40)
 
         updateDisplay()
 

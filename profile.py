@@ -10,7 +10,7 @@ def updateAttribute(attribute, newValue, file_, strict=False):
     assert type(file_) is str
     assert type(strict) is bool
 
-    fileLines = readFile(file_)
+    fileLines = readFile(profileDir + file_)
 
     attribute = attribute.strip().lower()
 
@@ -28,7 +28,7 @@ def updateAttribute(attribute, newValue, file_, strict=False):
 
             updated = True
 
-    writeFile(fileLines, file_)
+    writeFile(fileLines, profileDir + file_)
 
     if strict and not updated:
         raise ValueError('Cannot find {} in {}'.format(attribute, file_))
@@ -63,10 +63,10 @@ def createProfile(ID, name):
 
     name = name.strip()
 
-    profileFile = '{}{}{}.txt'.format(profileDir, ID, name.lower())
+    profileFile = '{}{}.txt'.format(ID, name.lower())
 
-    if not os.path.exists(profileFile):
-        with open(profileFile, 'w') as f:
+    if not os.path.exists(profileDir + profileFile):
+        with open(profileDir + profileFile, 'w') as f:
             f.write('id: {}\n'.format(ID))
             f.write('name: {}\n'.format(name))
             f.write('file: {}\n'.format(profileFile))
@@ -187,3 +187,75 @@ class Profile:
         self.questionsCorrect = questionsCorrect
 
         self.default = default
+
+    def updateID(self, newID=None, noFileUpdate=False):
+        assert type(newID) is int
+        assert type(noFileUpdate) is bool
+
+        self.ID = newID
+
+        if not noFileUpdate:
+            updateAttribute('id', self.ID, self.file)
+
+    def updateName(self, newName=None, noFileUpdate=False):
+        assert type(newName) is str
+        assert type(noFileUpdate) is bool
+
+        self.name = newName
+
+        if not noFileUpdate:
+            updateAttribute('name', self.name, self.file)
+
+    def updateStatus(self, newStatus=None, noFileUpdate=False):
+        assert type(newStatus) is str
+        assert type(noFileUpdate) is bool
+
+        self.status = newStatus
+
+        if not noFileUpdate:
+            updateAttribute('status', 'inactive', self.file)
+
+    def updateQuestionsAttempted(self, newQuestionsAttempted=None, noFileUpdate=False):
+        assert type(newQuestionsAttempted) is int
+        assert type(noFileUpdate) is bool
+
+        self.questionsAttempted = newQuestionsAttempted
+
+        if not noFileUpdate:
+            updateAttribute('questions attempted', self.questionsAttempted, self.file)
+
+    def updateQuestionsCorrect(self, newQuestionsCorrect=None, noFileUpdate=False):
+        assert type(newQuestionsCorrect) is int
+        assert type(noFileUpdate) is bool
+
+        self.questionsCorrect = newQuestionsCorrect
+
+        if not noFileUpdate:
+            updateAttribute('questions correct', self.questionsCorrect, self.file)
+
+    def updateDefault(self, newDefault=None, noFileUpdate=False):
+        assert type(newDefault) is bool
+        assert type(noFileUpdate) is bool
+
+        self.default = newDefault
+
+        if not noFileUpdate:
+            updateAttribute('default', self.default, self.file)
+
+    def setDefault(self, noFileUpdate=False):
+        assert type(noFileUpdate) is bool
+
+        self.updateDefault(True, noFileUpdate)
+
+    def delete(self, noFileUpdate=False):
+        assert type(noFileUpdate) is bool
+
+        self.updateStatus('inactive', noFileUpdate)
+
+    def rewriteFile(self):
+        updateAttribute('id', self.ID, self.file)
+        updateAttribute('name', self.name, self.file)
+        updateAttribute('status', self.status, self.file)
+        updateAttribute('questions attempted', self.questionsAttempted, self.file)
+        updateAttribute('questions correct', self.questionsCorrect, self.file)
+        updateAttribute('default', self.default, self.file)

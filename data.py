@@ -149,6 +149,8 @@ class Fonts:
     profileButtons = SysFont('sfnsmono', size=20, bold=False, italic=False)
 
     profileTitle = SysFont('sfnsmono', size=24, bold=False, italic=False)
+    profileHeader = SysFont('sfnsmono', size=18, bold=False, italic=False)
+    profileHeader.set_underline(True)
 
     profile = SysFont('sfnsmono', size=22, bold=False, italic=False)
     profileList = SysFont('sfnsmono', size=18, bold=False, italic=False)
