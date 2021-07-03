@@ -1,6 +1,7 @@
 from data import readFile, writeFile
 
-import os
+from os import listdir
+from os.path import exists
 
 profileDir = 'files/profiles/'
 
@@ -65,7 +66,7 @@ def createProfile(ID, name):
 
     profileFile = '{}{}.txt'.format(ID, name.lower())
 
-    if not os.path.exists(profileDir + profileFile):
+    if not exists(profileDir + profileFile):
         with open(profileDir + profileFile, 'w') as f:
             f.write('id: {}\n'.format(ID))
             f.write('name: {}\n'.format(name))
@@ -89,7 +90,7 @@ def createProfile(ID, name):
 def getNextProfileID():
     ID = 0
 
-    for file_ in os.listdir(profileDir):
+    for file_ in listdir(profileDir):
         fileLines = readFile(profileDir + file_)
 
         newID = getAttribute('id', fileLines)
@@ -103,7 +104,7 @@ def getNextProfileID():
 def loadProfiles():
     profiles = []
 
-    for file_ in os.listdir(profileDir):
+    for file_ in listdir(profileDir):
         fileLines = readFile(profileDir + file_)
 
         status = getAttribute('status', fileLines)

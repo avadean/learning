@@ -1,15 +1,22 @@
 import pygame
 pygame.init()
+pygame.mixer.init()
 
 from data import ScreenColors, Fonts, blitText, blitTextWrapped, blitListOfText
+from os import listdir
 from profile import loadProfiles, getNextProfileID, createProfile
 from time import time
 
 import game
 
+musicDir = 'music/'
+
 
 def updateDisplay():
     pygame.display.update()
+
+def loadSongs():
+    return [musicDir + song for song in listdir(musicDir)]
 
 
 class Program:
@@ -87,6 +94,7 @@ class Program:
     def __init__(self, settings):
         self.state = 'main menu'
         self.settings = settings
+        self.songs = loadSongs()
 
         self.getProfiles()
 
@@ -222,6 +230,8 @@ class Program:
                             self.quickPlayResponse += event.unicode
 
     def update(self):
+        self.checkMusic()
+
         if self.state == 'main menu':
             pass
         elif self.state == 'learn':
@@ -725,3 +735,18 @@ class Program:
         profileToDelete.delete()
 
         self.getProfiles()
+
+    def checkMusic(self):
+        if len(self.songs) == 0:
+            return
+
+        if not pygame.mixer.music.get_busy():
+            self.playNextSong()
+
+    def playNextSong(self):
+        nextSong = self.songs[0]
+
+        pygame.mixer.music.load(nextSong)
+        pygame.mixer.music.play()
+
+        self.songs = self.songs[1:] + [nextSong]
