@@ -430,7 +430,7 @@ class Program:
 
     def drawQuickPlay(self):
         self.drawCurrentProfile()
-        self.drawBackButton()
+        self.backButton.draw(self.screen)
 
         if self.playing:
             lineSpacing = 2
@@ -484,8 +484,9 @@ class Program:
                          font=Fonts.quickPlayLastResponse,
                          color=ScreenColors.responseCorrect if self.quickPlayLastQuestion.correct\
                              else ScreenColors.responseWrong,
-                         left=5,
-                         top=self.screenHeight - Fonts.quickPlayLastResponse.get_height() - 5)
+                         bottomLeft=True,
+                         horOffset=10,
+                         verOffset=10)
 
             # blit the timer
             blitText(screen=self.screen,
@@ -561,7 +562,7 @@ class Program:
 
     def drawSettings(self):
         self.drawCurrentProfile()
-        self.drawBackButton()
+        self.backButton.draw(self.screen)
 
         blitText(screen=self.screen,
                  text='Settings',
@@ -576,8 +577,6 @@ class Program:
                        color=ScreenColors.black,
                        startTop=self.screenHeight // 8,
                        centerHor=True)
-
-
 
     def drawCurrentProfile(self):
         if self.currentProfile is not None:
