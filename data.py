@@ -304,7 +304,7 @@ class Button:
                  center=False, centerHor=False, centerVer=False,
                  topLeft=False, topRight=False, bottomLeft=False, bottomRight=False,
                  horOffset=0, verOffset=0,
-                 color=None, highlightColor=None, borderColor=None, font=None):
+                 color=None, highlightColor=None, font=None):
 
         assert type(text) is str
 
@@ -397,9 +397,6 @@ class Button:
         if highlightColor is not None:
             assert type(highlightColor) is Color
 
-        if borderColor is not None:
-            assert type(borderColor) is Color
-
         #assert type(font) is SysFont
 
         self.width = width
@@ -412,19 +409,25 @@ class Button:
 
         self.color = color if color is not None else False
         self.highlightColor = highlightColor if highlightColor is not None else False
-        self.borderColor = borderColor if borderColor is not None else False
         self.font = font
 
         self.selected = False
 
     def draw(self, screen):
-        if self.selected and self.highlightColor:
-            draw.rect(screen, self.highlightColor, self.rect)
-        elif self.color:
-            draw.rect(screen, self.color, self.rect)
+        if self.selected:
+            draw.rect(screen, self.highlightColor if self.highlightColor else self.color, self.rect, 2)
+            if self.optionList is not None:
+                height = self.rect.y + self.rect.height
+                for option in self.optionList:
+                    rect = self.rect.copy()
+                    rect.y = height
+                    height += self.rect.height
+                    draw.rect(screen, False, rect, 2)
+                    text = self.font.render(option, False, ScreenColors.black)
+                    screen.blit(text, text.get_rect(center=rect.center))
 
-        if self.borderColor:
-            draw.rect(screen, self.borderColor, self.rect, 2)
+        if self.color:
+            draw.rect(screen, self.color, self.rect, 2)
 
         text = self.font.render(self.text, False, ScreenColors.black)
         screen.blit(text, text.get_rect(center=self.rect.center))

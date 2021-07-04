@@ -66,6 +66,9 @@ class Program:
     profileMenuButtonWidth = 180
     profileMenuButtonHeight = 40
 
+    settingsButtonWidth = 180
+    settingsButtonHeight = 40
+
     state = None
     settings = None
 
@@ -144,16 +147,19 @@ class Program:
                 elif self.state == 'add profile':
                     if not self.addProfileButton.clicked(mousePos):
                         self.profileResponse = ''
+                        self.addProfileButton.updateText('Add')
                         self.state = 'profiles'
 
                 elif self.state == 'select profile':
                     if not self.selectProfileButton.clicked(mousePos):
                         self.profileResponse = ''
+                        self.selectProfileButton.updateText('Select')
                         self.state = 'profiles'
 
                 elif self.state == 'delete profile':
                     if not self.deleteProfileButton.clicked(mousePos):
                         self.profileResponse = ''
+                        self.deleteProfileButton.updateText('Delete')
                         self.state = 'profiles'
 
                 elif self.state == 'quick play':
@@ -275,37 +281,37 @@ class Program:
                                   centerHor=True,
                                   width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                   top=self.screenHeight // 6, height=self.mainMenuButtonHeight,
-                                  borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                  font=Fonts.mainMenuButtons)
 
         self.profilesButton = Button(text='Profiles',
                                      centerHor=True,
                                      width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                      top=self.screenHeight // 3, height=self.mainMenuButtonHeight,
-                                     borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                     font=Fonts.mainMenuButtons)
 
         self.quickPlayButton = Button(text='Quick play',
                                       centerHor=True,
                                       width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                       top=self.screenHeight // 2, height=self.mainMenuButtonHeight,
-                                      borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                      font=Fonts.mainMenuButtons)
 
         self.settingsButton = Button(text='Settings',
                                      centerHor=True,
                                      width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                      top=2 * self.screenHeight // 3, height=self.mainMenuButtonHeight,
-                                     borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                     font=Fonts.mainMenuButtons)
 
         self.exitButton = Button(text='Exit',
                                  centerHor=True,
                                  width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                  top=5 * self.screenHeight // 6, height=self.mainMenuButtonHeight,
-                                 borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                 font=Fonts.mainMenuButtons)
 
         self.backButton = Button(text='Back',
                                  centerHor=True,
                                  width=self.mainMenuButtonWidth, screenWidth=self.screenWidth,
                                  top=5 * self.screenHeight // 6, height=self.mainMenuButtonHeight,
-                                 borderColor=ScreenColors.mainMenuButtons, font=Fonts.mainMenuButtons)
+                                 font=Fonts.mainMenuButtons)
 
         w = (self.screenWidth - 3 * self.profileMenuButtonWidth) // 4
 
@@ -315,7 +321,7 @@ class Program:
                                        height=self.profileMenuButtonHeight,
                                        horOffset=w,
                                        verOffset=7 * self.screenHeight // 10,
-                                       borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
+                                       color=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
         self.selectProfileButton = Button(text='Select',
                                           centerHor=True,
@@ -323,7 +329,7 @@ class Program:
                                           height=self.profileMenuButtonHeight,
                                           top=7 * self.screenHeight // 10,
                                           screenWidth=self.screenWidth,
-                                          borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
+                                          color=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
         self.deleteProfileButton = Button(text='Delete',
                                           topRight=True,
@@ -332,7 +338,7 @@ class Program:
                                           horOffset=w,
                                           verOffset=7 * self.screenHeight // 10,
                                           screenWidth=self.screenWidth,
-                                          borderColor=ScreenColors.profileButtons, font=Fonts.profileButtons)
+                                          color=ScreenColors.profileButtons, font=Fonts.profileButtons)
 
     def draw(self):
         self.screen.fill(ScreenColors.fill)
